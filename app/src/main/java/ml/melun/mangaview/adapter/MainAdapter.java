@@ -34,7 +34,7 @@ import static ml.melun.mangaview.mangaview.MTitle.base_comic;
 public class MainAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     Context mainContext;
     LayoutInflater mInflater, itemInflater;
-    MainUpdatedAdapter uadapter; // 최근 추가된 만화 섹션의 어댑터
+    MainUpdatedAdapter uadapter; // 최신 업데이트 만화 섹션의 어댑터
     onItemClick mainClickListener; // 아이템 클릭 리스너
     boolean dark, loaded = false; // 다크 테마 여부, 데이터 로드 완료 여부
 
@@ -60,11 +60,11 @@ public class MainAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         data = new ArrayList<>();
 
         uadapter = new MainUpdatedAdapter(main);
-        addh = new ButtonHeader("최근 추가된 만화", () -> mainClickListener.clickedMoreUpdated());
+        addh = new ButtonHeader("최신 업데이트 만화", () -> mainClickListener.clickedMoreUpdated());
 
         // 초기 데이터 구조 설정
-        data.add(addh); // 최근 추가된 만화 헤더
-        data.add(null); // 최근 추가된 만화 목록 (MainUpdatedAdapter가 관리)
+        data.add(addh); // 최신 업데이트 만화 헤더
+        data.add(null); // 최신 업데이트 만화 목록 (MainUpdatedAdapter가 관리)
 
         updh = new Header("북마크 업데이트");
         data.add(updh);
@@ -98,7 +98,7 @@ public class MainAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     // 메인 페이지 데이터를 가져옵니다.
     public void fetch(){
-        uadapter.setLoad(); // 최근 추가된 만화 섹션 로딩 상태로 설정
+        uadapter.setLoad(); // 최신 업데이트 만화 섹션 로딩 상태로 설정
         new MainFetcher().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
 
@@ -178,7 +178,7 @@ public class MainAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         return data.size();
     }
 
-    // 최근 추가된 만화 목록을 표시하는 뷰홀더
+    // 최신 업데이트 만화 목록을 표시하는 뷰홀더
     class AddedHolder extends RecyclerView.ViewHolder{
         RecyclerView updatedList;
         public AddedHolder(View itemView) {
@@ -404,7 +404,7 @@ public class MainAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         void clickedName(String t); // 이름 태그 클릭 시
         void clickedRelease(String t); // 발행 구분 태그 클릭 시
         void clickedTitle(Title t); // 작품 제목 클릭 시
-        void clickedMoreUpdated(); // 최근 추가된 만화 더보기 클릭 시
+        void clickedMoreUpdated(); // 최신 업데이트 만화 더보기 클릭 시
         void captchaCallback(); // 캡차 발생 시
         void clickedSearch(String query); // 검색어 클릭 시
         void clickedRetry(); // 재시도 클릭 시
@@ -435,7 +435,7 @@ public class MainAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 // 캡차 발생 시
                 mainClickListener.captchaCallback();
             }
-            uadapter.setData(u.getRecent()); // 최근 추가된 만화 데이터 설정
+            uadapter.setData(u.getRecent()); // 최신 업데이트 만화 데이터 설정
 
             // 기존의 '결과 없음' 아이템 제거
             for(int i=data.size()-1; i>=0; i--){

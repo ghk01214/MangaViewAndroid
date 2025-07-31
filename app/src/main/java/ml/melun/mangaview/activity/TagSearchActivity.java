@@ -41,13 +41,13 @@ import static ml.melun.mangaview.mangaview.MTitle.base_comic;
 // 태그, 작가, 발행 구분, 북마크 등 다양한 검색 결과를 표시하는 액티비티
 public class TagSearchActivity extends AppCompatActivity {
     RecyclerView searchResult; // 검색 결과를 표시할 RecyclerView
-    int mode; // 검색 모드 (0: 일반, 1: 작가, 2: 태그, 3: 초성, 4: 발행, 5: 최근 추가됨, 6: 검색 결과, 7: 북마크)
+    int mode; // 검색 모드 (0: 일반, 1: 작가, 2: 태그, 3: 초성, 4: 발행, 5: 최신 업데이트, 6: 검색 결과, 7: 북마크)
     String query; // 검색어
     TitleAdapter adapter; // 일반 검색 및 북마크 목록을 위한 어댑터
-    UpdatedAdapter uadapter; // 최근 추가된 만화 목록을 위한 어댑터
+    UpdatedAdapter uadapter; // 최신 업데이트 만화 목록을 위한 어댑터
     Context context; // 현재 컨텍스트
     Search search; // 검색 기능을 담당하는 객체
-    UpdatedList updated; // 최근 추가된 만화 목록을 가져오는 객체
+    UpdatedList updated; // 최신 업데이트 만화 목록을 가져오는 객체
     TextView noresult; // 검색 결과가 없을 때 표시할 텍스트뷰
     SwipyRefreshLayout swipe; // 새로고침 기능을 위한 SwipyRefreshLayout
     Bookmark bookmark; // 북마크 기능을 담당하는 객체
@@ -85,7 +85,7 @@ public class TagSearchActivity extends AppCompatActivity {
                 ab.setTitle("검색 결과");
                 break;
             case 5:
-                ab.setTitle("최근 추가됨");
+                ab.setTitle("최신 업데이트");
                 break;
             case 6:
                 ab.setTitle("검색결과");
