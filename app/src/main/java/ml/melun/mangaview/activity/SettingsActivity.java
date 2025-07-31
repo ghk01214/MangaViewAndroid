@@ -352,7 +352,7 @@ public class SettingsActivity extends AppCompatActivity {
         toggle_lbl.setText("URL 자동 설정");
         final Switch toggle = new Switch(context);
 
-        definputtext.setText("기본 URL (숫자 없는 주소):");
+        definputtext.setText("기본 URL:");
         inputtext.setText("URL:");
 
         switch_layout.addView(toggle_lbl);

@@ -55,8 +55,6 @@ public class FirstTimeActivity extends AppCompatActivity {
             String defurl = input.getText().toString();
             if(defurl.length() == 0){
                 urlError("기본주소를 입력해 주세요.");
-            }else if(containsDigit(defurl)) {
-                urlError("기본주소는 숫자를 포함하지 않은 주소입니다.");
             }else if(!defurl.contains("https://")) {
                 urlError("기본주소는 https 프로토콜을 사용해야 합니다.");
             }else{
