@@ -95,8 +95,12 @@ public class MainUpdatedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             h.thumb.setColorFilter(dark ? Color.WHITE : Color.DKGRAY);
         }else if(save) // 데이터 절약 모드일 경우 기본 아이콘 표시
             h.thumb.setImageDrawable(ResourcesCompat.getDrawable(res, R.mipmap.ic_launcher, null));
-        else // 일반적인 경우 Glide로 썸네일 로드
-            Glide.with(h.thumb).load(thumb).into(h.thumb);
+        else { // 일반적인 경우 Glide로 썸네일 로드
+            Glide.with(h.thumb)
+                .load(ml.melun.mangaview.Utils.getGlideUrl(thumb))
+                .error(R.mipmap.ic_launcher)
+                .into(h.thumb);
+        }
     }
 
 

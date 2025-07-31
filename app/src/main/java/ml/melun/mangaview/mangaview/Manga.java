@@ -185,23 +185,40 @@ public class Manga {
 
 
                 try {
-                    // 일반 댓글
-                    for (Element e : commentdiv.selectFirst("section#bo_vc").select("div.media")) {
-                        try {
-                            comments.add(parseComment(e));
-                        } catch (Exception e3) {
-                            e3.printStackTrace();
+                    if (commentdiv != null) {
+                        // 일반 댓글 섹션들을 여러 방법으로 시도
+                        Element regularCommentsSection = commentdiv.selectFirst("section#bo_vc");
+                        if (regularCommentsSection != null) {
+                            for (Element e : regularCommentsSection.select("div.media")) {
+                                try {
+                                    comments.add(parseComment(e));
+                                } catch (Exception e3) {
+                                    e3.printStackTrace();
+                                }
+                            }
+                        } else {
+                            // 일반 댓글 섹션이 없으면 전체 댓글 영역에서 찾기
+                            for (Element e : commentdiv.select("div.media")) {
+                                try {
+                                    Comment comment = parseComment(e);
+                                    comments.add(comment);
+                                } catch (Exception e3) {
+                                    e3.printStackTrace();
+                                }
+                            }
                         }
-
-                    }
-                    // 베스트 댓글
-                    for (Element e : commentdiv.selectFirst("section#bo_vcb").select("div.media")) {
-                        try {
-                            bcomments.add(parseComment(e));
-                        } catch (Exception e3) {
-                            e3.printStackTrace();
+                        
+                        // 베스트 댓글
+                        Element bestCommentsSection = commentdiv.selectFirst("section#bo_vcb");
+                        if (bestCommentsSection != null) {
+                            for (Element e : bestCommentsSection.select("div.media")) {
+                                try {
+                                    bcomments.add(parseComment(e));
+                                } catch (Exception e3) {
+                                    e3.printStackTrace();
+                                }
+                            }
                         }
-
                     }
                 } catch (Exception e1) {
                     e1.printStackTrace();

@@ -72,8 +72,12 @@ public class UpdatedAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         h.date.setText(m.getDate());
 
         // 데이터 절약 모드가 아닐 때만 썸네일 로드
-        if(m.getThumb().length()>1 && !save) Glide.with(h.thumb).load(m.getThumb()).into(h.thumb);
-        else h.thumb.setImageBitmap(null);
+        if(m.getThumb().length()>1 && !save) {
+            Glide.with(h.thumb)
+                .load(ml.melun.mangaview.Utils.getGlideUrl(m.getThumb()))
+                .error(R.mipmap.ic_launcher)
+                .into(h.thumb);
+        } else h.thumb.setImageBitmap(null);
         if(save) h.thumb.setVisibility(View.GONE);
 
         // 봤던 작품 표시

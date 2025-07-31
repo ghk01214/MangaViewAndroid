@@ -83,6 +83,14 @@ public class EpisodeActivity extends AppCompatActivity {
                 download.putExtra("title", new Gson().toJson(title));
                 startActivity(download);
                 return true;
+            case R.id.action_settings:
+                Intent settingIntent = new Intent(context, SettingsActivity.class);
+                startActivityForResult(settingIntent, 0);
+                return true;
+            case R.id.action_debug:
+                Intent debug = new Intent(context, DebugActivity.class);
+                startActivity(debug);
+                return true;
         }
         return super.onOptionsItemSelected(item);
     }

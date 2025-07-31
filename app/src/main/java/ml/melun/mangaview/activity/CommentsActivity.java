@@ -16,6 +16,9 @@ import androidx.fragment.app.FragmentStatePagerAdapter;
 import androidx.viewpager.widget.PagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -63,21 +66,33 @@ public class CommentsActivity extends AppCompatActivity {
     tab = this.findViewById(R.id.tab_layout);
 
     String gsonData = intent.getStringExtra("comments");
-    if (gsonData.length() > 0) {
+    if (gsonData != null && gsonData.length() > 0) {
       Gson gson = new Gson();
       comments = gson.fromJson(gsonData, new TypeToken<ArrayList<Comment>>() {}.getType());
+      if (comments == null) comments = new ArrayList<>();
       adapter = new CommentsAdapter(context, comments);
-      getSupportActionBar().setTitle("댓글 " + comments.size());
     } else {
-      getSupportActionBar().setTitle("댓글 없음");
+      comments = new ArrayList<>();
+      adapter = new CommentsAdapter(context, comments);
     }
 
     gsonData = intent.getStringExtra("bestComments");
-    if (gsonData.length() > 0) {
+    if (gsonData != null && gsonData.length() > 0) {
       Gson gson = new Gson();
       bcomments = gson.fromJson(gsonData, new TypeToken<ArrayList<Comment>>() {}.getType());
+      if (bcomments == null) bcomments = new ArrayList<>();
       badapter = new CommentsAdapter(context, bcomments);
-      // ((TextView)toolbar.findViewById(R.id.comments_title)).setText("댓글 ["+comments.size()+"]");
+    } else {
+      bcomments = new ArrayList<>();
+      badapter = new CommentsAdapter(context, bcomments);
+    }
+    
+    // 총 댓글 수를 계산해서 제목에 표시
+    int totalComments = comments.size() + bcomments.size();
+    if (totalComments > 0) {
+      getSupportActionBar().setTitle("댓글 " + totalComments + "개");
+    } else {
+      getSupportActionBar().setTitle("댓글 없음");
     }
 
     id = intent.getIntExtra("id", 0);
@@ -206,5 +221,27 @@ public class CommentsActivity extends AppCompatActivity {
       }
       return 1;
     }
+  }
+
+  @Override
+  public boolean onCreateOptionsMenu(Menu menu) {
+    getMenuInflater().inflate(R.menu.main, menu);
+    return true;
+  }
+
+  @Override
+  public boolean onOptionsItemSelected(MenuItem item) {
+    int id = item.getItemId();
+
+    if (id == R.id.action_settings) {
+      Intent settingIntent = new Intent(this, SettingsActivity.class);
+      startActivityForResult(settingIntent, 0);
+      return true;
+    } else if (id == R.id.action_debug) {
+      Intent debug = new Intent(this, DebugActivity.class);
+      startActivity(debug);
+      return true;
+    }
+    return super.onOptionsItemSelected(item);
   }
 }

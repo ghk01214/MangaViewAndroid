@@ -58,8 +58,13 @@ public class CommentsAdapter extends BaseAdapter {
         // 댓글 들여쓰기 설정
         layout.setPadding(60*c.getIndent(),0,0,0);
         // 아이콘 로드 (데이터 절약 모드가 아닐 때만)
-        if(c.getIcon().length()>1 && !save) Glide.with(icon).load(c.getIcon()).into(icon);
-        else icon.setImageResource(R.drawable.user);
+        if(c.getIcon().length()>1 && !save) {
+            Glide.with(icon)
+                .load(ml.melun.mangaview.Utils.getGlideUrl(c.getIcon()))
+                .placeholder(R.drawable.user)
+                .error(R.drawable.user)
+                .into(icon);
+        } else icon.setImageResource(R.drawable.user);
         content.setText(c.getContent()); // 댓글 내용 설정
         timeStamp.setText(c.getTimestamp()); // 작성 시간 설정
         user.setText(c.getUser()); // 작성자 이름 설정

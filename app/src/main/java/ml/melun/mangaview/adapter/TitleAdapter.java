@@ -205,8 +205,12 @@ public class TitleAdapter extends RecyclerView.Adapter<TitleAdapter.ViewHolder> 
         }
 
         // 썸네일 이미지 로드 (데이터 절약 모드 및 강제 표시 여부에 따라)
-        if(thumb.length()>1 && (!save || forceThumbnail)) Glide.with(holder.thumb).load(thumb).into(holder.thumb);
-        else holder.thumb.setImageBitmap(null);
+        if(thumb.length()>1 && (!save || forceThumbnail)) {
+            Glide.with(holder.thumb)
+                .load(ml.melun.mangaview.Utils.getGlideUrl(thumb))
+                .error(R.mipmap.ic_launcher)
+                .into(holder.thumb);
+        } else holder.thumb.setImageBitmap(null);
         if(save && !forceThumbnail) holder.thumb.setVisibility(View.GONE);
 
         // 이어보기 버튼 표시 (북마크가 있고 이어보기 모드일 때)

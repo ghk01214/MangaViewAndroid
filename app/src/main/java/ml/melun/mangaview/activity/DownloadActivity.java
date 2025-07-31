@@ -8,6 +8,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 
 import androidx.recyclerview.widget.RecyclerView;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -83,11 +84,27 @@ public class DownloadActivity extends AppCompatActivity {
         });
     }
     public boolean onOptionsItemSelected(MenuItem item){
-        if (item.getItemId() == android.R.id.home) {
+        int id = item.getItemId();
+        
+        if (id == android.R.id.home) {
             finish();
+            return true;
+        } else if (id == R.id.action_settings) {
+            Intent settingIntent = new Intent(this, SettingsActivity.class);
+            startActivityForResult(settingIntent, 0);
+            return true;
+        } else if (id == R.id.action_debug) {
+            Intent debug = new Intent(this, DebugActivity.class);
+            startActivity(debug);
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.main, menu);
+        return true;
     }
 
 
