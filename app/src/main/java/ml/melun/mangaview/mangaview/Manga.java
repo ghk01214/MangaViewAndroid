@@ -446,7 +446,7 @@ public class Manga {
     String date; // 발행일
     int seed; // (사용되지 않는 것으로 보임)
     int mode; // 온라인/오프라인 모드
-    Listener listener; // 리스너
+    transient Listener listener; // 리스너
     Manga nextEp, prevEp; // 이전/다음 에피소드
 
     public interface Listener {

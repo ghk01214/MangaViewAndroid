@@ -19,3 +19,24 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+# GSON rules
+-keepattributes Signature
+-keepattributes *Annotation*
+-dontwarn sun.misc.**
+-keep class com.google.gson.** { *; }
+-keep class * implements com.google.gson.TypeAdapterFactory
+-keep class * implements com.google.gson.JsonSerializer
+-keep class * implements com.google.gson.JsonDeserializer
+
+# Keep Manga class and its fields for GSON serialization
+-keep class ml.melun.mangaview.mangaview.Manga { *; }
+-keep class ml.melun.mangaview.mangaview.Manga$** { *; }
+
+# Keep all model classes used with GSON
+-keep class ml.melun.mangaview.mangaview.** { *; }
+
+# Prevent obfuscation of transient fields
+-keepclassmembers class * {
+    transient <fields>;
+}
