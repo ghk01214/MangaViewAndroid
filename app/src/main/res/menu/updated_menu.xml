@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/action_select_date"
+        android:title="분류"
+        app:showAsAction="never">
+        <menu>
+            <item
+                android:id="@+id/action_select_from_calendar"
+                android:title="달력에서 선택" />
+            <item
+                android:id="@+id/action_select_from_list"
+                android:title="목록에서 선택" />
+            <item
+                android:id="@+id/action_show_all"
+                android:title="전체 보기" />
+        </menu>
+    </item>
+    <item
+        android:id="@+id/action_settings"
+        android:orderInCategory="1"
+        android:title="설정" />
+    <item
+        android:id="@+id/action_debug"
+        android:orderInCategory="2"
+        android:title="debug info" />
+</menu>

@@ -1,5 +1,7 @@
 package ml.melun.mangaview.activity;
 
+import android.app.AlertDialog;
+import android.app.DatePickerDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -14,7 +16,14 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.DatePicker;
 import android.widget.TextView;
+
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Locale;
+import java.util.TimeZone;
 
 import com.omadahealth.github.swipyrefreshlayout.library.SwipyRefreshLayout;
 import com.omadahealth.github.swipyrefreshlayout.library.SwipyRefreshLayoutDirection;
@@ -149,14 +158,122 @@ public class TagSearchActivity extends AppCompatActivity {
             Intent debug = new Intent(this, DebugActivity.class);
             startActivity(debug);
             return true;
+        } else if (id == R.id.action_select_from_calendar) {
+            // 달력에서 날짜 선택
+            if(mode == 5 && uadapter != null) {
+                showDatePickerDialog();
+            }
+            return true;
+        } else if (id == R.id.action_select_from_list) {
+            // 목록에서 날짜 선택
+            if(mode == 5 && uadapter != null) {
+                showDateListDialog();
+            }
+            return true;
+        } else if (id == R.id.action_show_all) {
+            // 전체 보기
+            if(mode == 5 && uadapter != null) {
+                uadapter.clearDateFilter();
+                getSupportActionBar().setTitle("최신 업데이트");
+            }
+            return true;
         }
         return super.onOptionsItemSelected(item);
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.main, menu);
+        if(mode == 5) {
+            // 최신 업데이트 모드일 때는 정렬 옵션이 있는 메뉴 사용
+            getMenuInflater().inflate(R.menu.updated_menu, menu);
+        } else {
+            getMenuInflater().inflate(R.menu.main, menu);
+        }
         return true;
+    }
+
+    // 달력을 이용한 날짜 선택 다이얼로그를 표시합니다.
+    private void showDatePickerDialog() {
+        // UTC+9 (KST) 기준으로 현재 날짜 설정
+        Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT+09:00"));
+        int year = calendar.get(Calendar.YEAR);
+        int month = calendar.get(Calendar.MONTH);
+        int day = calendar.get(Calendar.DAY_OF_MONTH);
+
+        DatePickerDialog datePickerDialog = new DatePickerDialog(
+            this,
+            p.getDarkTheme() ? android.R.style.Theme_DeviceDefault_Dialog : android.R.style.Theme_DeviceDefault_Light_Dialog,
+            new DatePickerDialog.OnDateSetListener() {
+                @Override
+                public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
+                    // 선택된 날짜를 Calendar 객체로 생성
+                    Calendar selectedCalendar = Calendar.getInstance();
+                    selectedCalendar.set(year, month, dayOfMonth);
+                    
+                    // 선택된 날짜를 "일" 단위로 변환하여 필터링
+                    filterByDay(selectedCalendar);
+                }
+            },
+            year, month, day
+        );
+        
+        // 달력에서 선택 가능한 최대 날짜를 UTC+9 기준 오늘로 제한
+        Calendar maxDate = Calendar.getInstance(TimeZone.getTimeZone("GMT+09:00"));
+        datePickerDialog.getDatePicker().setMaxDate(maxDate.getTimeInMillis());
+        
+        // 선택 가능한 최소 날짜를 1년 전으로 설정 (너무 오래된 날짜 방지)
+        Calendar minDate = Calendar.getInstance(TimeZone.getTimeZone("GMT+09:00"));
+        minDate.add(Calendar.YEAR, -1);
+        datePickerDialog.getDatePicker().setMinDate(minDate.getTimeInMillis());
+        
+        datePickerDialog.show();
+    }
+    
+    // 선택된 날짜(일)를 기준으로 만화를 필터링합니다.
+    private void filterByDay(Calendar selectedDate) {
+        SimpleDateFormat displayFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+        String selectedDateStr = displayFormat.format(selectedDate.getTime());
+        
+        // 일 단위로 필터링
+        uadapter.setDateFilterByDay(selectedDate);
+        
+        // 액션바 제목 업데이트
+        getSupportActionBar().setTitle("최신 업데이트 (" + selectedDateStr + ")");
+    }
+    
+    // 사용 가능한 날짜 목록을 보여주는 다이얼로그를 표시합니다.
+    private void showDateListDialog() {
+        ArrayList<String> availableDates = uadapter.getAvailableDates();
+        
+        if (availableDates.isEmpty()) {
+            // 사용 가능한 날짜가 없는 경우
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            if (p.getDarkTheme()) builder = new AlertDialog.Builder(this, R.style.darkDialog);
+            
+            builder.setTitle("알림")
+                   .setMessage("표시할 날짜가 없습니다.")
+                   .setPositiveButton("확인", null)
+                   .show();
+            return;
+        }
+        
+        // 날짜 목록을 배열로 변환
+        String[] dateArray = availableDates.toArray(new String[0]);
+        
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        if (p.getDarkTheme()) builder = new AlertDialog.Builder(this, R.style.darkDialog);
+        
+        builder.setTitle("날짜 선택 (실제 데이터)")
+               .setItems(dateArray, (dialog, which) -> {
+                   String selectedDateStr = dateArray[which];
+                   // 문자열 날짜로 직접 필터링
+                   uadapter.setDateFilterByString(selectedDateStr);
+                   
+                   // 액션바 제목 업데이트
+                   getSupportActionBar().setTitle("최신 업데이트 (" + selectedDateStr + ")");
+               })
+               .setNegativeButton("취소", null)
+               .show();
     }
 
 
