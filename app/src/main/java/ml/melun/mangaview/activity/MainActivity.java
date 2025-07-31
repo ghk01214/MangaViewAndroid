@@ -77,25 +77,26 @@ import static ml.melun.mangaview.activity.SettingsActivity.RESULT_NEED_RESTART;
 
 
 
+// 메인 액티비티. 앱의 주요 기능을 담당하며, 다양한 프래그먼트를 관리합니다.
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, MainActivityCallback {
 
-    public static int PERMISSION_CODE = 132322;
-    int startTab;
-    int currentTab = -1;
-    private Context context;
-    MenuItem versionItem;
-    String homeDirStr;
-    Boolean dark;
-    NavigationView navigationView;
-    Toolbar toolbar;
-    View progressView;
-    private static final int FIRST_TIME_ACTIVITY = 9;
+    public static int PERMISSION_CODE = 132322; // 권한 요청 코드
+    int startTab; // 시작 탭 인덱스
+    int currentTab = -1; // 현재 선택된 탭 인덱스
+    private Context context; // 액티비티 컨텍스트
+    MenuItem versionItem; // 버전 정보를 표시할 메뉴 아이템
+    String homeDirStr; // 홈 디렉토리 경로 문자열
+    Boolean dark; // 다크 테마 적용 여부
+    NavigationView navigationView; // 내비게이션 뷰
+    Toolbar toolbar; // 툴바
+    View progressView; // 진행 상황을 표시할 뷰
+    private static final int FIRST_TIME_ACTIVITY = 9; // 첫 실행 액티비티 요청 코드
 
 
-    Fragment[] fragments = new Fragment[3];
+    Fragment[] fragments = new Fragment[3]; // 메인, 검색, 최근/즐겨찾기/다운로드 프래그먼트 배열
 
-    FrameLayout content;
+    FrameLayout content; // 프래그먼트가 로드될 컨테이너
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {

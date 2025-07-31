@@ -29,18 +29,20 @@ import android.os.Build;
 
 import androidx.documentfile.provider.DocumentFile;
 
+// 만화의 한 회차(에피소드)를 나타내는 클래스
+public class Manga {
     /*
     mode:
-    0 = online
-    1 = offline - old
-    2 = offline - old(moa) (title.data)
-    3 = offline - latest(toki) (title.gson)
-    4 = offline - new(moa) (title.gson)
+    0 = 온라인
+    1 = 오프라인 - 구버전
+    2 = 오프라인 - 구버전(모아) (title.data)
+    3 = 오프라인 - 최신(토끼) (title.gson)
+    4 = 오프라인 - 신버전(모아) (title.gson)
      */
 
-public class Manga {
-    int baseMode = base_comic;
+    int baseMode = base_comic; // 만화 소스 (코믹, 웹툰 등)
 
+    // 생성자
     public Manga(int i, String n, String d, int baseMode) {
         id = i;
         name = n;
@@ -68,6 +70,7 @@ public class Manga {
         return date;
     }
 
+    // 이미지 목록을 직접 설정합니다. (주로 오프라인 모드에서 사용)
     public void setImgs(List<String> imgs) {
         this.imgs = imgs;
     }
@@ -77,32 +80,37 @@ public class Manga {
         return thumb;
     }
 
+    // 웹에서 만화 데이터를 가져옵니다. (기본)
     public int fetch(CustomHttpClient client) {
         return fetch(client, true, null);
     }
 
+    // 웹에서 만화 데이터를 가져옵니다. (쿠키 사용)
     public int fetch(CustomHttpClient client, Map<String, String> cookies) {
         return fetch(client, false, cookies);
     }
 
+    // 웹에서 만화 데이터를 가져오는 핵심 메서드
     public int fetch(CustomHttpClient client, boolean doLogin, Map<String, String> cookies) {
-        mode = 0;
+        mode = 0; // 온라인 모드로 설정
         imgs = new ArrayList<>();
         eps = new ArrayList<>();
         comments = new ArrayList<>();
         bcomments = new ArrayList<>();
         int tries = 0;
 
+        // 이미지 목록을 가져올 때까지 최대 2번 재시도
         while (imgs.size() == 0 && tries < 2) {
             Response r = client.mget(  baseModeStr(baseMode) + '/' + id, false, cookies);
             try {
+                // 캡차 페이지로 리다이렉트되면 캡차 필요 코드를 반환
                 if (r.code() == 302 && r.header("location").contains("captcha.php")) {
                     return LOAD_CAPTCHA;
                 }
                 String body = r.body().string();
                 r.close();
+                // 타임아웃 발생 시 재시도
                 if (body.contains("Connect Error: Connection timed out")) {
-                    //adblock : try again
                     r.close();
                     tries = 0;
                     continue;
@@ -110,12 +118,10 @@ public class Manga {
 
                 Document d = Jsoup.parse(body);
 
-                System.out.println(body);
-
-                //name
+                // 에피소드 제목 파싱
                 name = d.selectFirst("div.toon-title").ownText();
 
-                //temp title
+                // 상위 작품(Title) 정보 파싱
                 Element navbar = d.selectFirst("div.toon-nav");
                 int tid = Integer.parseInt(navbar.select("a")
                         .last()
@@ -125,14 +131,14 @@ public class Manga {
 
                 if (title == null) title = new Title(name, "", "", null, "", tid, baseMode);
 
-                //eps
+                // 다른 에피소드 목록 파싱
                 for (Element e : navbar.selectFirst("select").select("option")) {
                     String idstr = e.attr("value");
                     if (idstr.length() > 0)
                         eps.add(new Manga(Integer.parseInt(idstr), e.ownText(), "", baseMode));
                 }
 
-                //imgs
+                // 이미지 URL 목록 파싱 (스크립트 내 인코딩된 데이터 디코딩)
                 String script = d.select("div.view-padding").get(1).selectFirst("script").data();
                 StringBuilder encodedData = new StringBuilder();
                 encodedData.append('%');
@@ -174,11 +180,12 @@ public class Manga {
                     }
                 }
 
-                //comments
+                // 댓글 파싱
                 Element commentdiv = d.selectFirst("div#viewcomment");
 
 
                 try {
+                    // 일반 댓글
                     for (Element e : commentdiv.selectFirst("section#bo_vc").select("div.media")) {
                         try {
                             comments.add(parseComment(e));
@@ -187,6 +194,7 @@ public class Manga {
                         }
 
                     }
+                    // 베스트 댓글
                     for (Element e : commentdiv.selectFirst("section#bo_vcb").select("div.media")) {
                         try {
                             bcomments.add(parseComment(e));
@@ -210,24 +218,26 @@ public class Manga {
         return LOAD_OK;
     }
 
+    // HTML Element에서 댓글 정보를 파싱하는 헬퍼 메서드
     private Comment parseComment(Element e) {
-        String user;
-        String icon;
-        String content;
-        String timestamp;
-        int likes;
-        int level;
+        String user; // 작성자
+        String icon; // 작성자 아이콘 URL
+        String content; // 내용
+        String timestamp; // 작성 시간
+        int likes; // 좋아요 수
+        int level; // 작성자 레벨
         String lvlstr;
-        int indent;
+        int indent; // 들여쓰기 수준 (대댓글)
         String indentstr;
-        //indent
+
+        // 들여쓰기 파싱
         indentstr = e.attr("style");
         if (indentstr.length() > 0)
             indent = Integer.parseInt(indentstr.substring(indentstr.lastIndexOf(':') + 1, indentstr.lastIndexOf('p'))) / 64;
         else
             indent = 0;
 
-        //icon
+        // 아이콘 파싱
         Element icone = e.selectFirst(".media-object");
         if (icone.is("img"))
             icon = icone.attr("src");
@@ -237,6 +247,7 @@ public class Manga {
         Element header = e.selectFirst("div.media-heading");
         Element userSpan = header.selectFirst("span.member");
         user = userSpan.ownText();
+        // 레벨 파싱
         if (userSpan.hasClass("guest"))
             level = 0;
         else {
@@ -248,32 +259,36 @@ public class Manga {
         Element cbody = e.selectFirst("div.media-content");
         content = cbody.selectFirst("div:not([class])").ownText();
 
+        // 좋아요 수 파싱
         Elements cspans = cbody.selectFirst("div.cmt-good-btn").select("span");
         likes = Integer.parseInt(cspans.get(cspans.size() - 1).ownText());
         return new Comment(user, timestamp, icon, content, indent, likes, level);
     }
 
 
+    // 다른 에피소드 목록을 반환합니다.
     public List<Manga> getEps() {
         return eps;
     }
 
+    // 상위 작품(Title) 객체를 반환합니다.
     public Title getTitle() {
         return title;
     }
 
+    // 이미지 URL 목록을 반환합니다. 오프라인 모드일 경우 로컬 파일 경로를 읽어 반환합니다.
     public List<String> getImgs(Context context) {
-        if (mode != 0) {
+        if (mode != 0) { // 오프라인 모드일 경우
             if (imgs == null) {
                 imgs = new ArrayList<>();
-                //is offline : read image list
+                // Scoped Storage (Android 10 이상) 대응
                 if (Build.VERSION.SDK_INT >= CODE_SCOPED_STORAGE) {
                     DocumentFile[] offimgs = DocumentFile.fromTreeUri(context, Uri.parse(offlinePath)).listFiles();
                     Arrays.sort(offimgs, (documentFile, t1) -> documentFile.getName().compareTo(t1.getName()));
                     for (DocumentFile f : offimgs) {
                         imgs.add(f.getUri().toString());
                     }
-                } else {
+                } else { // 구버전 안드로이드
                     File[] offimgs = new File(offlinePath).listFiles();
                     Arrays.sort(offimgs);
                     for (File img : offimgs) {
@@ -285,10 +300,12 @@ public class Manga {
         return imgs;
     }
 
+    // 일반 댓글 목록을 반환합니다.
     public List<Comment> getComments() {
         return comments;
     }
 
+    // 베스트 댓글 목록을 반환합니다.
     public List<Comment> getBestComments() {
         return bcomments;
     }
@@ -297,6 +314,7 @@ public class Manga {
         return seed;
     }
 
+    // Manga 객체를 JSON 문자열로 변환합니다.
     public String toString() {
         JSONObject tmp = new JSONObject();
         try {
@@ -343,42 +361,51 @@ public class Manga {
         this.mode = mode;
     }
 
+    // 현재 에피소드의 URL을 반환합니다.
     public String getUrl() {
         return '/' + baseModeStr(baseMode) + '/' + id;
     }
 
+    // 북마크 기능을 사용할 수 있는 에피소드인지 확인합니다.
     public boolean useBookmark() {
         return id > 0 && (mode == 0 || mode == 3);
     }
 
+    // 온라인 에피소드인지 확인합니다.
     public boolean isOnline() {
         return id > 0 && mode == 0;
     }
 
+    // 다음 에피소드를 반환합니다.
     public Manga nextEp() {
         if (isOnline()) {
             if (eps == null || eps.size() == 0) {
                 return null;
-            } else {
+            }
+            else {
                 int index = eps.indexOf(this);
                 if (index > 0) return eps.get(index - 1);
                 else return null;
             }
-        } else {
+        }
+        else {
             return nextEp;
         }
     }
 
+    // 이전 에피소드를 반환합니다.
     public Manga prevEp() {
         if (isOnline()) {
             if (eps == null || eps.size() == 0) {
                 return null;
-            } else {
+            }
+            else {
                 int index = eps.indexOf(this);
                 if (index < eps.size() - 1) return eps.get(index + 1);
                 else return null;
             }
-        } else {
+        }
+        else {
             return prevEp;
         }
     }
@@ -391,19 +418,19 @@ public class Manga {
         this.nextEp = m;
     }
 
-    private final int id;
-    String name;
-    List<Manga> eps;
-    List<String> imgs;
-    List<Comment> comments, bcomments;
-    String offlinePath;
-    String thumb;
-    Title title;
-    String date;
-    int seed;
-    int mode;
-    Listener listener;
-    Manga nextEp, prevEp;
+    private final int id; // 에피소드 ID
+    String name; // 에피소드 제목
+    List<Manga> eps; // 동일 작품의 다른 에피소드 목록
+    List<String> imgs; // 이미지 URL 목록
+    List<Comment> comments, bcomments; // 일반 댓글, 베스트 댓글 목록
+    String offlinePath; // 오프라인 저장 경로
+    String thumb; // 썸네일 URL
+    Title title; // 상위 작품(Title) 객체
+    String date; // 발행일
+    int seed; // (사용되지 않는 것으로 보임)
+    int mode; // 온라인/오프라인 모드
+    Listener listener; // 리스너
+    Manga nextEp, prevEp; // 이전/다음 에피소드
 
     public interface Listener {
         void setMessage(String msg);

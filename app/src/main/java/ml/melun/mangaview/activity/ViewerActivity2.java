@@ -71,42 +71,43 @@ import static ml.melun.mangaview.Utils.showTokiCaptchaPopup;
 import static ml.melun.mangaview.activity.CaptchaActivity.RESULT_CAPTCHA;
 import static ml.melun.mangaview.mangaview.Title.LOAD_CAPTCHA;
 
+// 만화 뷰어 액티비티 (단일/분할 페이지 뷰어)
 public class ViewerActivity2 extends AppCompatActivity {
-    Boolean dark, toolbarshow=true, reverse, touch=true, stretch, leftRight;
-    Context context = this;
-    String name;
-    int id;
-    Manga manga;
-    ImageButton next, prev, commentBtn;
-    androidx.appcompat.widget.Toolbar toolbar;
-    Button pageBtn, nextPageBtn, prevPageBtn, touchToggleBtn;
-    AppBarLayout appbar, appbarBottom;
-    TextView toolbarTitle;
-    int viewerBookmark = 0;
-    List<String> imgs;
-    List<Integer> types;
-    ProgressDialog pd;
-    List<Manga> eps;
-    int index;
-    Title title;
-    ImageView frame; // left
-    ImageView frame2; // right
-    int type=-1;
-    Bitmap imgCache, preloadImg;
-    Intent result;
-    AlertDialog.Builder alert;
-    int swidth = 0;
-    Intent intent;
-    boolean captchaChecked = false;
-    ImageButton toolbar_toggleBtn;
-    CustomSpinner spinner;
-    CustomSpinnerAdapter spinnerAdapter;
-    Decoder d;
-    boolean nextEpisodeVisible = false;
-    View nextEpisode;
-    boolean split = false;
-    boolean dirty = false;
-    TextView info;
+    Boolean dark, toolbarshow=true, reverse, touch=true, stretch, leftRight; // 다크 모드, 툴바 표시 여부, 이미지 반전, 터치 활성화, 이미지 확대, 좌우 넘기기 방향
+    Context context = this; // 현재 컨텍스트
+    String name; // 현재 에피소드 이름
+    int id; // 현재 에피소드 ID
+    Manga manga; // 현재 에피소드 객체
+    ImageButton next, prev, commentBtn; // 다음/이전 에피소드 버튼, 댓글 버튼
+    androidx.appcompat.widget.Toolbar toolbar; // 상단 툴바
+    Button pageBtn, nextPageBtn, prevPageBtn, touchToggleBtn; // 페이지 번호 버튼, 다음/이전 페이지 버튼, 터치 제한 토글 버튼
+    AppBarLayout appbar, appbarBottom; // 상단/하단 앱바
+    TextView toolbarTitle; // 툴바 제목
+    int viewerBookmark = 0; // 뷰어 내에서 마지막으로 본 페이지 인덱스
+    List<String> imgs; // 현재 에피소드의 이미지 URL 목록
+    List<Integer> types; // (사용되지 않는 것으로 보임)
+    ProgressDialog pd; // 로딩 프로그레스 다이얼로그
+    List<Manga> eps; // 현재 작품의 전체 에피소드 목록
+    int index; // 현재 에피소드의 전체 에피소드 목록에서의 인덱스
+    Title title; // 현재 작품의 Title 객체
+    ImageView frame; // 왼쪽 이미지 뷰
+    ImageView frame2; // 오른쪽 이미지 뷰
+    int type=-1; // 페이지 타입 (단일, 분할 등)
+    Bitmap imgCache, preloadImg; // 이미지 캐시, 미리 로드된 이미지
+    Intent result; // 결과 인텐트
+    AlertDialog.Builder alert; // 알림 다이얼로그 빌더
+    int swidth = 0; // 화면 너비
+    Intent intent; // 현재 액티비티를 시작한 인텐트
+    boolean captchaChecked = false; // 캡차 확인 여부
+    ImageButton toolbar_toggleBtn; // 툴바 토글 버튼
+    CustomSpinner spinner; // 에피소드 선택 스피너
+    CustomSpinnerAdapter spinnerAdapter; // 스피너 어댑터
+    Decoder d; // 이미지 디코더
+    boolean nextEpisodeVisible = false; // 다음 에피소드 버튼 표시 여부
+    View nextEpisode; // 다음 에피소드 버튼 뷰
+    boolean split = false; // 분할 뷰 모드 여부
+    boolean dirty = false; // (사용되지 않는 것으로 보임)
+    TextView info; // 정보 텍스트뷰
 
     @Override
     protected void onResume() {

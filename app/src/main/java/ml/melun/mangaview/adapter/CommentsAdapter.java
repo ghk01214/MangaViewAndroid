@@ -19,12 +19,14 @@ import ml.melun.mangaview.mangaview.Comment;
 
 import static ml.melun.mangaview.MainApplication.p;
 
+// 댓글 목록을 표시하는 BaseAdapter
 public class CommentsAdapter extends BaseAdapter {
     Context context;
-    ArrayList<Comment> data;
+    ArrayList<Comment> data; // 댓글 데이터 리스트
     LayoutInflater inflater;
-    boolean dark;
-    boolean save;
+    boolean dark; // 다크 테마 여부
+    boolean save; // 데이터 절약 모드 여부
+
     public CommentsAdapter(Context context, ArrayList<Comment> data) {
         super();
         this.dark = p.getDarkTheme();
@@ -53,13 +55,16 @@ public class CommentsAdapter extends BaseAdapter {
         TextView likes = convertView.findViewById(R.id.comment_likes);
         TextView level = convertView.findViewById(R.id.comment_level);
 
+        // 댓글 들여쓰기 설정
         layout.setPadding(60*c.getIndent(),0,0,0);
+        // 아이콘 로드 (데이터 절약 모드가 아닐 때만)
         if(c.getIcon().length()>1 && !save) Glide.with(icon).load(c.getIcon()).into(icon);
         else icon.setImageResource(R.drawable.user);
-        content.setText(c.getContent());
-        timeStamp.setText(c.getTimestamp());
-        user.setText(c.getUser());
-        level.setText(String.valueOf(c.getLevel()));
+        content.setText(c.getContent()); // 댓글 내용 설정
+        timeStamp.setText(c.getTimestamp()); // 작성 시간 설정
+        user.setText(c.getUser()); // 작성자 이름 설정
+        level.setText(String.valueOf(c.getLevel())); // 작성자 레벨 설정
+        // 좋아요 수 설정
         if(c.getLikes()>0) likes.setText(String.valueOf(c.getLikes()));
         else likes.setText("");
         return convertView;
@@ -76,3 +81,4 @@ public class CommentsAdapter extends BaseAdapter {
         return 0;
     }
 }
+

@@ -29,6 +29,7 @@ import static ml.melun.mangaview.MainApplication.httpClient;
 import static ml.melun.mangaview.MainApplication.p;
 import static ml.melun.mangaview.mangaview.MTitle.base_comic;
 
+// 이전 버전의 데이터를 새 형식으로 마이그레이션하는 서비스
 public class Migrator extends Service {
     NotificationCompat.Builder notification;
     NotificationManager notificationManager;

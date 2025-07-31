@@ -20,13 +20,14 @@ import static ml.melun.mangaview.MainApplication.httpClient;
 import static ml.melun.mangaview.MainApplication.p;
 import static ml.melun.mangaview.Utils.showYesNoPopup;
 
+// 앱 최초 실행 시 사용자 동의 및 초기 설정을 처리하는 액티비티
 public class FirstTimeActivity extends AppCompatActivity {
 
-    public static final int RESULT_EULA_AGREE = 0;
-    public static final int RESULT_EULA_DISAGREE = 1;
-    Context context;
-    EditText input;
-    ProgressDialog pd;
+    public static final int RESULT_EULA_AGREE = 0; // EULA 동의 결과 코드
+    public static final int RESULT_EULA_DISAGREE = 1; // EULA 비동의 결과 코드
+    Context context; // 액티비티 컨텍스트
+    EditText input; // 기본 URL 입력 필드
+    ProgressDialog pd; // 진행 상황 다이얼로그
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

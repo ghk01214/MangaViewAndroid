@@ -50,17 +50,19 @@ import static ml.melun.mangaview.Utils.readUriToString;
 import static ml.melun.mangaview.Utils.showPopup;
 import static ml.melun.mangaview.Utils.viewerIntent;
 
+// 최근, 즐겨찾기, 다운로드 목록을 표시하는 재사용 가능한 프래그먼트
 public class RecyclerFragment extends Fragment {
-    int selectedPosition = -1;
-    TitleAdapter titleAdapter;
+    int selectedPosition = -1; // 사용자가 선택한 아이템의 위치
+    TitleAdapter titleAdapter; // RecyclerView 어댑터
     RecyclerView recyclerView;
-    int mode = -1;
-    boolean loaded = false;
-    SearchView searchView;
+    int mode = -1; // 현재 프래그먼트의 모드 (최근, 즐겨찾기, 다운로드)
+    boolean loaded = false; // 뷰가 로드되었는지 여부
+    SearchView searchView; // 검색 뷰
 
 
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
+        // 상태 저장
         outState.putInt("mode", mode);
         super.onSaveInstanceState(outState);
     }
@@ -68,7 +70,7 @@ public class RecyclerFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setHasOptionsMenu(true);
+        setHasOptionsMenu(true); // 옵션 메뉴 사용 설정
     }
 
     @Nullable
@@ -79,19 +81,21 @@ public class RecyclerFragment extends Fragment {
         titleAdapter = new TitleAdapter(getContext());
         recyclerView.setLayoutManager(new NpaLinearLayoutManager(getContext()));
         recyclerView.setAdapter(titleAdapter);
+
+        // 어댑터에 클릭 리스너 설정
         titleAdapter.setClickListener(new TitleAdapter.ItemClickListener() {
             @Override
             public void onResumeClick(int position, int id) {
+                // 이어보기 버튼 클릭 시
                 selectedPosition = position;
-                if(mode == R.id.nav_recent) {
+                if(mode == R.id.nav_recent || mode == R.id.nav_favorite) {
                     openViewer(new Manga(id, "", "" , titleAdapter.getItem(position).getBaseMode()), 2);
-                } else if(mode == R.id.nav_favorite) {
-                    openViewer(new Manga(id, "", "", titleAdapter.getItem(position).getBaseMode()), -1);
                 }
             }
 
             @Override
             public void onLongClick(View view, int position) {
+                // 아이템 롱클릭 시 팝업 메뉴 표시
                 Title title = titleAdapter.getItem(position);
                 if(mode == R.id.nav_favorite) {
                     popup(view, position, title, 2);
@@ -104,6 +108,7 @@ public class RecyclerFragment extends Fragment {
 
             @Override
             public void onItemClick(int position) {
+                // 아이템 클릭 시 에피소드 목록 화면으로 이동
                 selectedPosition = position;
                 Intent episodeView = episodeIntent(getContext(), titleAdapter.getItem(position));
                 if(mode == R.id.nav_favorite) {
@@ -119,6 +124,8 @@ public class RecyclerFragment extends Fragment {
                 }
             }
         });
+
+        // 저장된 상태 복원
         if(savedInstanceState != null){
             mode = savedInstanceState.getInt("mode");
         }
@@ -131,19 +138,18 @@ public class RecyclerFragment extends Fragment {
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        // 다른 액티비티에서 돌아왔을 때의 결과 처리
         if(resultCode == RESULT_OK){
             if(titleAdapter != null && titleAdapter.getItemCount() > 0 && selectedPosition > -1) {
                 switch (requestCode) {
-                    case 1:
-                        //favorite result
+                    case 1: // 즐겨찾기
                         boolean favorite_after = data.getBooleanExtra("favorite", true);
-                        if (!favorite_after && titleAdapter != null && titleAdapter.getItemCount() > 0)
+                        if (!favorite_after) // 즐겨찾기에서 해제되었다면 목록에서 제거
                             titleAdapter.remove(selectedPosition);
                         break;
-                    case 2:
-                        //recent result
-                        if (titleAdapter != null && titleAdapter.getItemCount() > 0)
-                            titleAdapter.moveItemToTop(selectedPosition);
+                    case 2: // 최근 본 만화
+                        // 맨 위로 이동
+                        titleAdapter.moveItemToTop(selectedPosition);
                         break;
 
                 }
@@ -158,6 +164,7 @@ public class RecyclerFragment extends Fragment {
         loaded = false;
     }
 
+    // 표시할 데이터의 종류를 변경 (최근, 즐겨찾기, 다운로드)
     public void changeMode(int id){
         mode = id;
         if(!loaded)
@@ -167,23 +174,28 @@ public class RecyclerFragment extends Fragment {
             searchView.clearFocus();
             searchView.setQuery("", false);
         }
-        if(id == R.id.nav_recent){
-            titleAdapter.setResume(true);
-            titleAdapter.setForceThumbnail(false);
-            titleAdapter.setData(p.getRecent());
-        }else if(id == R.id.nav_favorite){
-            titleAdapter.setResume(true);
-            titleAdapter.setForceThumbnail(false);
-            titleAdapter.setData(p.getFavorite());
-        }else if(id == R.id.nav_download){
-            titleAdapter.setResume(false);
-            titleAdapter.setForceThumbnail(true);
-            titleAdapter.clearData();
-            new OfflineReader().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+        switch(id){
+            case R.id.nav_recent:
+                titleAdapter.setResume(true);
+                titleAdapter.setForceThumbnail(false);
+                titleAdapter.setData(p.getRecent());
+                break;
+            case R.id.nav_favorite:
+                titleAdapter.setResume(true);
+                titleAdapter.setForceThumbnail(false);
+                titleAdapter.setData(p.getFavorite());
+                break;
+            case R.id.nav_download:
+                titleAdapter.setResume(false);
+                titleAdapter.setForceThumbnail(true);
+                titleAdapter.clearData();
+                new OfflineReader().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+                break;
         }
     }
 
 
+    // 오프라인 저장된 만화 목록을 읽어오는 AsyncTask
     public class OfflineReader extends AsyncTask<Void,Void,Integer>{
         List<Title> titles;
         @Override
@@ -194,14 +206,13 @@ public class RecyclerFragment extends Fragment {
         @Override
         protected Integer doInBackground(Void... voids) {
             titles = new ArrayList<>();
+            // Scoped Storage (Android 10 이상) 대응
             if (Build.VERSION.SDK_INT >= CODE_SCOPED_STORAGE) {
-                //scoped storage
                 Uri uri = Uri.parse(p.getHomeDir());
                 DocumentFile home;
                 try {
                     home = DocumentFile.fromTreeUri(getContext(), uri);
                 }catch (IllegalArgumentException e){
-                    //home not set
                     return null;
                 }
                 if(home != null && home.canRead()){
@@ -210,8 +221,8 @@ public class RecyclerFragment extends Fragment {
                             DocumentFile d = f.findFile("title.gson");
                             if (d != null) {
                                 try {
-                                    Title title = new Gson().fromJson(readUriToString(getContext(), d.getUri()), new TypeToken<Title>() {
-                                    }.getType());
+                                    // title.gson 파일에서 작품 정보 읽기
+                                    Title title = new Gson().fromJson(readUriToString(getContext(), d.getUri()), new TypeToken<Title>() {}.getType());
                                     title.setPath(f.getUri().toString());
                                     if (title.getThumb().length() > 0) {
                                         DocumentFile t = f.findFile(title.getThumb());
@@ -219,7 +230,7 @@ public class RecyclerFragment extends Fragment {
                                     }
                                     titles.add(title);
                                 } catch (Exception e) {
-                                    e.printStackTrace();
+                                    // 실패 시 폴더 이름으로 기본 Title 객체 생성
                                     Title title = new Title(f.getName(), "", "", new ArrayList<>(), "", 0, MTitle.base_auto);
                                     title.setPath(f.getUri().toString());
                                     titles.add(title);
@@ -233,7 +244,7 @@ public class RecyclerFragment extends Fragment {
                     }
                 }
 
-            }else {
+            }else { // 구버전 안드로이드
                 File homeDir = new File(p.getHomeDir());
                 if (homeDir.exists()) {
                     File[] files = homeDir.listFiles();
@@ -244,14 +255,12 @@ public class RecyclerFragment extends Fragment {
                             File data = new File(f, "title.gson");
                             if (data.exists()) {
                                 try {
-                                    Title title = new Gson().fromJson(readFileToString(data), new TypeToken<Title>() {
-                                    }.getType());
+                                    Title title = new Gson().fromJson(readFileToString(data), new TypeToken<Title>() {}.getType());
                                     title.setPath(f.getAbsolutePath());
                                     if (title.getThumb().length() > 0)
                                         title.setThumb(f.getAbsolutePath() + '/' + title.getThumb());
                                     titles.add(title);
                                 } catch (Exception e) {
-                                    e.printStackTrace();
                                     Title title = new Title(f.getName(), "", "", new ArrayList<>(), "", 0, MTitle.base_auto);
                                     title.setPath(f.getAbsolutePath());
                                     titles.add(title);
@@ -264,7 +273,6 @@ public class RecyclerFragment extends Fragment {
                             }
                         }
                     }
-                    //add titles to adapter
                 }
             }
             return null;
@@ -273,6 +281,7 @@ public class RecyclerFragment extends Fragment {
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        // 검색 메뉴 설정
         inflater.inflate(R.menu.search_menu, menu);
         SearchManager searchManager = (SearchManager) getActivity().getSystemService(Context.SEARCH_SERVICE);
         searchView = (SearchView) menu.findItem(R.id.filter_search).getActionView();
@@ -299,65 +308,60 @@ public class RecyclerFragment extends Fragment {
         return item.getItemId() == R.id.filter_search;
     }
 
+    // 뷰어 액티비티를 실행하는 헬퍼 메서드
     void openViewer(Manga manga, int code){
         Intent viewer = viewerIntent(getContext(),manga);
         viewer.putExtra("online",true);
         startActivityForResult(viewer, code);
     }
 
+    // 롱클릭 시 나타나는 팝업 메뉴를 생성하고 표시하는 메서드
     void popup(View view, final int position, final Title title, final int m){
         PopupMenu popup = new PopupMenu(getContext(), view);
-        //Inflating the Popup using xml file
-        //todo: clean this part
-        popup.getMenuInflater()
-                .inflate(R.menu.title_options, popup.getMenu());
+        popup.getMenuInflater().inflate(R.menu.title_options, popup.getMenu());
+
+        // 모드(m)에 따라 메뉴 아이템의 표시 여부 설정
         switch(m){
-            case 1:
-                //최근
+            case 1: // 최근
                 popup.getMenu().findItem(R.id.del).setVisible(true);
-            case 0:
-                //검색
+            case 0: // 검색 (사용 안함)
                 popup.getMenu().findItem(R.id.favAdd).setVisible(true);
                 popup.getMenu().findItem(R.id.favDel).setVisible(true);
                 break;
-            case 2:
-                //좋아요
+            case 2: // 즐겨찾기
                 popup.getMenu().findItem(R.id.favDel).setVisible(true);
                 break;
-            case 3:
-                //저장됨
+            case 3: // 다운로드
                 popup.getMenu().findItem(R.id.favAdd).setVisible(true);
                 popup.getMenu().findItem(R.id.favDel).setVisible(true);
                 popup.getMenu().findItem(R.id.remove).setVisible(true);
                 break;
         }
-        //좋아요 추가/제거 중 하나만 남김
+
+        // 즐겨찾기 상태에 따라 '추가' 또는 '삭제' 메뉴만 표시
         if(m!=2) {
             if (p.findFavorite(title) > -1) popup.getMenu().removeItem(R.id.favAdd);
             else popup.getMenu().removeItem(R.id.favDel);
         }
 
-        //registering popup with OnMenuItemClickListener
+        // 팝업 메뉴 아이템 클릭 리스너
         popup.setOnMenuItemClickListener(item -> {
             switch(item.getItemId()){
-                case R.id.del:
-                    //delete (only in recent)
+                case R.id.del: // 최근 목록에서 삭제
                     titleAdapter.remove(position);
                     p.removeRecent(position);
                     break;
                 case R.id.favAdd:
-                case R.id.favDel:
-                    //toggle favorite
+                case R.id.favDel: // 즐겨찾기 토글
                     p.toggleFavorite(title,0);
-                    if(m==2){
+                    if(m==2){ // 즐겨찾기 탭에서는 목록에서 바로 제거
                         titleAdapter.remove(position);
                     }
                     break;
-                case R.id.remove:
-                    //저장된 만화에서 삭제
+                case R.id.remove: // 다운로드한 만화 삭제
                     DialogInterface.OnClickListener dialogClickListener = (dialog, which) -> {
                         if (which == DialogInterface.BUTTON_POSITIVE) {
-                            //Yes button clicked
+                            // Scoped Storage 대응
                             if (Build.VERSION.SDK_INT >= CODE_SCOPED_STORAGE) {
                                 DocumentFile f = DocumentFile.fromTreeUri(getContext(), Uri.parse(p.getHomeDir()));
                                 DocumentFile target = f.findFile(title.getName());
@@ -383,6 +387,6 @@ public class RecyclerFragment extends Fragment {
             }
             return false;
         });
-        popup.show(); //showing popup menu
+        popup.show();
     }
 }

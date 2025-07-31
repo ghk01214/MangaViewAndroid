@@ -39,24 +39,25 @@ import static ml.melun.mangaview.Utils.getDefHomeDir;
 import static ml.melun.mangaview.Utils.showPopup;
 import static ml.melun.mangaview.activity.SettingsActivity.prefExtension;
 
+// 폴더 및 파일 선택/저장 기능을 제공하는 액티비티
 public class FolderSelectActivity extends AppCompatActivity {
 
-    ListView dirList;
-    Button select, storageSelectBtn;
-    File currentDir;
-    ArrayList<String> listContent;
-    Context context;
-    int requestCode;
-    ActionBar actionBar;
-    File defDir;
-    ArrayAdapter<String> arrayAdapter;
-    TextView path;
-    Boolean dark;
-    EditText input;
-    public final static int MODE_FOLDER_SELECT = 0;
-    public final static int MODE_FILE_SELECT = 1;
-    public final static int MODE_FILE_SAVE = 2;
-    int mode = 0;
+    ListView dirList; // 디렉토리 목록을 표시할 리스트뷰
+    Button select, storageSelectBtn; // 선택 버튼, 저장소 선택 버튼
+    File currentDir; // 현재 탐색 중인 디렉토리
+    ArrayList<String> listContent; // 리스트뷰에 표시될 파일/폴더 이름 목록
+    Context context; // 액티비티 컨텍스트
+    int requestCode; // (사용되지 않는 것으로 보임)
+    ActionBar actionBar; // 액션바
+    File defDir; // 기본 홈 디렉토리
+    ArrayAdapter<String> arrayAdapter; // 리스트뷰 어댑터
+    TextView path; // 현재 경로를 표시할 텍스트뷰
+    Boolean dark; // 다크 테마 여부
+    EditText input; // 파일 이름 입력 필드 (파일 저장/선택 모드에서 사용)
+    public final static int MODE_FOLDER_SELECT = 0; // 폴더 선택 모드
+    public final static int MODE_FILE_SELECT = 1; // 파일 선택 모드
+    public final static int MODE_FILE_SAVE = 2; // 파일 저장 모드
+    int mode = 0; // 현재 액티비티 모드
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         dark = p.getDarkTheme();

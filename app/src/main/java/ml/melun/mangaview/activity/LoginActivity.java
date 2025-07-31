@@ -32,9 +32,7 @@ import static ml.melun.mangaview.MainApplication.httpClient;
 import static ml.melun.mangaview.MainApplication.p;
 import static ml.melun.mangaview.mangaview.Bookmark.importBookmark;
 
-/**
- * A login screen that offers login via email/password.
- */
+// 로그인 화면을 담당하는 액티비티
 public class LoginActivity extends AppCompatActivity {
 
     private UserLoginTask mAuthTask = null;

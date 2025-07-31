@@ -16,12 +16,13 @@ import ml.melun.mangaview.R;
 import static ml.melun.mangaview.MainApplication.p;
 import static ml.melun.mangaview.Utils.getScreenWidth;
 
+// 뷰어의 페이지 넘김 버튼 레이아웃을 편집하는 액티비티
 public class LayoutEditActivity extends AppCompatActivity {
-    Button left;
-    Button right;
-    boolean leftRight;
-    SeekBar seekBar;
-    ViewGroup.LayoutParams params;
+    Button left; // 왼쪽 버튼
+    Button right; // 오른쪽 버튼
+    boolean leftRight; // 좌우 버튼의 기능 (true: 왼쪽이 다음, 오른쪽이 이전; false: 반대)
+    SeekBar seekBar; // 버튼 크기 조절을 위한 시크바
+    ViewGroup.LayoutParams params; // 왼쪽 버튼의 레이아웃 파라미터
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

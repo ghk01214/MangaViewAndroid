@@ -49,27 +49,28 @@ import static ml.melun.mangaview.activity.CaptchaActivity.RESULT_CAPTCHA;
 import static ml.melun.mangaview.mangaview.Title.LOAD_CAPTCHA;
 
 
+// 만화 에피소드 목록을 표시하고 관리하는 액티비티
 public class EpisodeActivity extends AppCompatActivity {
     //global variables
-    Title title;
-    EpisodeAdapter episodeAdapter;
-    Context context = this;
-    RecyclerView episodeList;
-    boolean favoriteResult = false;
-    boolean recentResult = false;
-    int position;
-    int bookmarkId = -1;
-    int bookmarkIndex = -1;
-    List<Manga> episodes;
-    boolean dark, online=true;
-    Intent viewer;
-    ActionBar actionBar;
-    String homeDir;
-    int mode = 0;
-    FloatingActionButton resumefab;
-    ProgressBar progress;
-    boolean loaded = false;
-    LinearLayoutCompat fab_container;
+    Title title; // 현재 작품 객체
+    EpisodeAdapter episodeAdapter; // 에피소드 목록을 표시할 어댑터
+    Context context = this; // 현재 컨텍스트
+    RecyclerView episodeList; // 에피소드 목록을 표시할 RecyclerView
+    boolean favoriteResult = false; // 즐겨찾기 결과 여부
+    boolean recentResult = false; // 최근 본 만화 결과 여부
+    int position; // (사용되지 않는 것으로 보임)
+    int bookmarkId = -1; // 북마크된 에피소드 ID
+    int bookmarkIndex = -1; // 북마크된 에피소드의 인덱스
+    List<Manga> episodes; // 에피소드 목록
+    boolean dark, online=true; // 다크 테마 여부, 온라인 모드 여부
+    Intent viewer; // 뷰어 액티비티 인텐트
+    ActionBar actionBar; // 액션바
+    String homeDir; // 홈 디렉토리 경로
+    int mode = 0; // 현재 모드 (온라인/오프라인)
+    FloatingActionButton resumefab; // 이어보기 플로팅 액션 버튼
+    ProgressBar progress; // 로딩 프로그레스바
+    boolean loaded = false; // 데이터 로드 완료 여부
+    LinearLayoutCompat fab_container; // 플로팅 액션 버튼 컨테이너
 
 
     public boolean onOptionsItemSelected(MenuItem item){

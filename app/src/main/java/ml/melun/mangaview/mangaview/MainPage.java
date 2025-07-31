@@ -12,16 +12,21 @@ import okhttp3.Response;
 import static ml.melun.mangaview.mangaview.MTitle.base_comic;
 
 
+// 메인 페이지(만화)의 데이터를 파싱하는 클래스
 public class MainPage {
-    List<Manga> recent, favUpdate, onlineRecent;
-    List<RankingTitle> ranking;
+    List<Manga> recent; // 최근 업데이트된 만화 목록
+    List<Manga> favUpdate; // 선호작 업데이트 (현재 사용 안함)
+    List<Manga> onlineRecent; // 실시간 인기 (현재 사용 안함)
+    List<RankingTitle> ranking; // 종합 랭킹 (제목 기준)
 
+    // 주간 랭킹을 반환합니다.
     public List<RankingManga> getWeeklyRanking() {
         return weeklyRanking;
     }
 
-    List<RankingManga> weeklyRanking;
+    List<RankingManga> weeklyRanking; // 주간 랭킹 (에피소드 기준)
 
+    // 웹에서 메인 페이지 데이터를 가져와 파싱합니다.
     void fetch(CustomHttpClient client) {
 
         recent = new ArrayList<>();
@@ -35,7 +40,7 @@ public class MainPage {
             Response r = client.mget("",true,null);
             String body = r.body().string();
             if(body.contains("Connect Error: Connection timed out")){
-                //adblock : try again
+                // 타임아웃 발생 시 재시도
                 r.close();
                 fetch(client);
                 return;
@@ -43,7 +48,7 @@ public class MainPage {
             Document d = Jsoup.parse(body);
             r.close();
 
-            //recent
+            // 변수 선언
             int id;
             String name;
             String thumb;
@@ -51,6 +56,7 @@ public class MainPage {
             Element infos;
             Title ttmp;
 
+            // 최근 업데이트된 만화 파싱
             for(Element e : d.selectFirst("div.miso-post-gallery").select("div.post-row")){
                 id = Integer.parseInt(e.selectFirst("a").attr("href").split("comic/")[1]);
                 infos = e.selectFirst("div.img-item");
@@ -62,6 +68,7 @@ public class MainPage {
                 recent.add(mtmp);
             }
 
+            // 종합 랭킹(제목) 파싱
             int i=1;
             for(Element e : d.select("div.miso-post-gallery").last().select("div.post-row")){
                 id = Integer.parseInt(e.selectFirst("a").attr("href").split("comic/")[1]);
@@ -72,13 +79,13 @@ public class MainPage {
                 ranking.add(new RankingTitle(name, thumb, "", null, "", id, base_comic, i++));
             }
 
+            // 주간 랭킹(에피소드) 파싱
             i=1;
             for(Element e : d.select("div.miso-post-list").last().select("li.post-row")){
                 infos = e.selectFirst("a");
                 id = Integer.parseInt(infos.attr("href").split("comic/")[1]);
                 name = infos.ownText();
 
-                System.out.println(name);
                 weeklyRanking.add(new RankingManga(id, name, "", base_comic, i++));
             }
 
@@ -86,6 +93,7 @@ public class MainPage {
             e.printStackTrace();
         }
 
+        // 이전 버전의 파싱 코드 (현재 주석 처리됨)
 /*
         try{
             Response response = client.mget("");
@@ -124,8 +132,9 @@ public class MainPage {
 */
     }
 
+    // 랭킹 정보를 담기 위해 Title 클래스를 상속받은 내부 클래스
     public static class RankingTitle extends Title{
-        int ranking;
+        int ranking; // 순위
         public RankingTitle(String n, String t, String a, List<String> tg, String r, int id, int baseMode, int ranking) {
             super(n, t, a, tg, r, id, baseMode);
             this.ranking = ranking;
@@ -135,8 +144,9 @@ public class MainPage {
             return ranking;
         }
     }
+    // 랭킹 정보를 담기 위해 Manga 클래스를 상속받은 내부 클래스
     public static class RankingManga extends Manga{
-        int ranking;
+        int ranking; // 순위
         public RankingManga(int i, String n, String d, int baseMode, int ranking) {
             super(i, n, d, baseMode);
             this.ranking = ranking;
@@ -147,6 +157,7 @@ public class MainPage {
         }
     }
 
+    // 이전 버전에서 사용되던 랭킹 위젯 파서 (현재 사용 안함)
     void rankingWidgetLiParser(Elements input, List output){
         for(Element e: input){
             String[] tmp_link = e.selectFirst("a").attr("href").split("=");
@@ -155,6 +166,7 @@ public class MainPage {
             output.add(new Manga(tmp_id, tmp_title,"", base_comic));
         }
     }
+    // 생성자. 객체 생성 시 바로 데이터를 가져옵니다.
     public MainPage(CustomHttpClient client) {
         fetch(client);
     }

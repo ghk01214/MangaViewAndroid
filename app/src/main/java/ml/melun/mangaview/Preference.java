@@ -21,32 +21,32 @@ import static ml.melun.mangaview.mangaview.MTitle.baseModeStr;
 import static ml.melun.mangaview.mangaview.MTitle.base_comic;
 import static ml.melun.mangaview.mangaview.Title.isInteger;
 
+// 앱의 사용자 설정 및 데이터를 관리하는 클래스
 public class Preference {
-    SharedPreferences sharedPref;
-    //ArrayList<Title> recent;
-    List<MTitle> recent;
-    List<MTitle> favorite;
-    SharedPreferences.Editor prefsEditor;
-    JSONObject pagebookmark;
-    JSONObject bookmark;
-    String homeDir;
-    boolean darkTheme;
-    int viewerType;
-    boolean reverse;
-    boolean pageRtl;
-    boolean dataSave;
-    int startTab;
-    String url;
-    boolean stretch;
-    boolean leftRight;
-    Login login;
-    String defUrl;
-    boolean autoUrl;
-    float pageControlButtonOffset;
-    int prevPageKey, nextPageKey;
-    int baseMode;
-    boolean doublep;
-    boolean doublepReverse;
+    SharedPreferences sharedPref; // SharedPreferences 객체
+    List<MTitle> recent; // 최근 본 만화 목록
+    List<MTitle> favorite; // 즐겨찾기 만화 목록
+    SharedPreferences.Editor prefsEditor; // SharedPreferences 에디터
+    JSONObject pagebookmark; // 페이지 북마크 (뷰어 내에서 마지막으로 본 페이지)
+    JSONObject bookmark; // 에피소드 북마크 (작품 내에서 마지막으로 본 에피소드)
+    String homeDir; // 다운로드 홈 디렉토리
+    boolean darkTheme; // 다크 테마 사용 여부
+    int viewerType; // 뷰어 타입 (0: 스트립, 1: 페이지, 2: 뷰페이저)
+    boolean reverse; // 이미지 좌우 반전 여부
+    boolean pageRtl; // 페이지 넘김 방향 (오른쪽에서 왼쪽으로) 여부
+    boolean dataSave; // 데이터 절약 모드 여부
+    int startTab; // 앱 시작 시 기본 탭
+    String url; // 현재 사용 중인 만화 사이트 URL
+    boolean stretch; // 이미지 확대 여부
+    boolean leftRight; // 페이지 넘김 버튼 좌우 반전 여부
+    Login login; // 로그인 정보
+    String defUrl; // 기본 만화 사이트 URL
+    boolean autoUrl; // URL 자동 업데이트 사용 여부
+    float pageControlButtonOffset; // 페이지 컨트롤 버튼 오프셋
+    int prevPageKey, nextPageKey; // 이전/다음 페이지 단축키
+    int baseMode; // 만화/웹툰 기본 모드
+    boolean doublep; // 두 페이지 보기 모드 여부
+    boolean doublepReverse; // 두 페이지 보기 모드에서 좌우 반전 여부
 
     public SharedPreferences getSharedPref(){
         return this.sharedPref;

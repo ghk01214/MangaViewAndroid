@@ -75,6 +75,7 @@ import static ml.melun.mangaview.MainApplication.p;
 import static ml.melun.mangaview.activity.CaptchaActivity.REQUEST_CAPTCHA;
 import static ml.melun.mangaview.activity.SettingsActivity.urlSettingPopup;
 
+// 유틸리티 함수들을 모아놓은 클래스
 public class Utils {
 
     private static int captchaCount = 1;

@@ -32,39 +32,53 @@ import okhttp3.Response;
 import static ml.melun.mangaview.MainApplication.httpClient;
 import static ml.melun.mangaview.Utils.showPopup;
 
+// 공지사항을 표시하는 액티비티
 public class NoticesActivity extends AppCompatActivity {
-    Boolean dark;
+    Boolean dark; // 다크 테마 여부
     Context context;
-    List<Notice> notices;
-    SharedPreferences sharedPref;
-    ListView list;
-    SwipyRefreshLayout swipe;
-    ProgressBar progress;
+    List<Notice> notices; // 공지사항 목록
+    SharedPreferences sharedPref; // 공지사항 저장을 위한 SharedPreferences
+    ListView list; // 공지사항 목록을 표시할 ListView
+    SwipyRefreshLayout swipe; // 아래로 당겨서 새로고침 기능을 위한 SwipyRefreshLayout
+    ProgressBar progress; // 로딩 프로그레스바
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        // 테마 설정 (다크 모드 여부에 따라)
         if(dark = new Preference(this).getDarkTheme())setTheme(R.style.AppThemeDark);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_notices);
-        ActionBar actionBar = getSupportActionBar();
-        notices = new ArrayList<>();
-        sharedPref = this.getSharedPreferences("mangaView", Context.MODE_PRIVATE);
         context = this;
+
+        // 뷰 요소 초기화
         swipe = this.findViewById(R.id.noticeSwipe);
         list = this.findViewById(R.id.noticeList);
         progress = this.findViewById(R.id.progress);
-        if(actionBar!=null) actionBar.setDisplayHomeAsUpEnabled(true);
-        //reset old notices sharedpref
-        sharedPref.edit().putString("notices","").commit();
+
+        // 액션바 설정
+        ActionBar actionBar = getSupportActionBar();
+        if(actionBar!=null) actionBar.setDisplayHomeAsUpEnabled(true); // 뒤로가기 버튼 활성화
+
+        notices = new ArrayList<>();
+        sharedPref = this.getSharedPreferences("mangaView", Context.MODE_PRIVATE);
+
+        // 기존 공지사항 데이터 초기화 및 로드
+        sharedPref.edit().putString("notices","").commit(); // 이전 notices 키 초기화 (오타 수정)
         notices = new Gson().fromJson(sharedPref.getString("notice", "[]"), new TypeToken<List<Notice>>(){}.getType());
-        //check notices for null object
+
+        // null 객체 제거
         for(int i=notices.size()-1; i>=0;i--){
             if(notices.get(i)==null) notices.remove(i);
         }
-        progress.setVisibility(View.VISIBLE);
+
+        progress.setVisibility(View.VISIBLE); // 로딩 프로그레스바 표시
+
+        // 아래로 당겨서 새로고침 리스너 설정
         swipe.setOnRefreshListener(direction -> {
             getNotices gn = new getNotices();
             gn.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         });
+
+        // 초기 공지사항 로드
         getNotices gn = new getNotices();
         gn.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }

@@ -30,23 +30,25 @@ import static ml.melun.mangaview.MainApplication.httpClient;
 import static ml.melun.mangaview.MainApplication.p;
 import static ml.melun.mangaview.mangaview.MTitle.base_comic;
 
+// 메인 페이지의 만화 탭에 표시될 데이터를 관리하고 뷰를 생성하는 RecyclerView 어댑터
 public class MainAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     Context mainContext;
     LayoutInflater mInflater, itemInflater;
-    MainUpdatedAdapter uadapter;
-    onItemClick mainClickListener;
-    boolean dark, loaded = false;
+    MainUpdatedAdapter uadapter; // 최근 추가된 만화 섹션의 어댑터
+    onItemClick mainClickListener; // 아이템 클릭 리스너
+    boolean dark, loaded = false; // 다크 테마 여부, 데이터 로드 완료 여부
 
-    List<Object> data;
+    List<Object> data; // 표시할 데이터 목록
 
-    final static int TITLE = 0;
-    final static int MANGA = 1;
-    final static int TAG = 2;
-    final static int HEADER = 3;
-    final static int UPDATED = 4;
+    // 뷰 타입 상수
+    final static int TITLE = 0; // 작품 제목 (Title) 타입
+    final static int MANGA = 1; // 만화 에피소드 (Manga) 타입
+    final static int TAG = 2; // 태그 타입
+    final static int HEADER = 3; // 헤더 타입
+    final static int UPDATED = 4; // 최근 업데이트된 만화 섹션 타입
 
-    ButtonHeader addh;
-    Header besth, updh, hish, weekh;
+    ButtonHeader addh; // '더보기' 버튼이 있는 헤더
+    Header besth, updh, hish, weekh; // 각 섹션의 헤더
 
     public MainAdapter(Context main) {
         super();
@@ -60,8 +62,9 @@ public class MainAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         uadapter = new MainUpdatedAdapter(main);
         addh = new ButtonHeader("최근 추가된 만화", () -> mainClickListener.clickedMoreUpdated());
 
-        data.add(addh);
-        data.add(null);
+        // 초기 데이터 구조 설정
+        data.add(addh); // 최근 추가된 만화 헤더
+        data.add(null); // 최근 추가된 만화 목록 (MainUpdatedAdapter가 관리)
 
         updh = new Header("북마크 업데이트");
         data.add(updh);
@@ -90,12 +93,12 @@ public class MainAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
         setHasStableIds(true);
         notifyDataSetChanged();
-        uadapter.setLoad("URL 업데이트중...");
+        uadapter.setLoad("URL 업데이트중..."); // 초기 로딩 메시지 설정
     }
 
+    // 메인 페이지 데이터를 가져옵니다.
     public void fetch(){
-        //fetch main page data
-        uadapter.setLoad();
+        uadapter.setLoad(); // 최근 추가된 만화 섹션 로딩 상태로 설정
         new MainFetcher().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
 
@@ -161,6 +164,7 @@ public class MainAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 ((HeaderHolder)holder).setHeader((Header)data.get(position));
                 break;
             case UPDATED:
+                // 이 뷰 타입은 AddedHolder에서 자체적으로 처리하므로 여기서는 특별한 바인딩 없음
                 break;
             case TAG:
                 ((TagHolder) holder).tag.setText(data.get(position).toString());
@@ -174,6 +178,7 @@ public class MainAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         return data.size();
     }
 
+    // 최근 추가된 만화 목록을 표시하는 뷰홀더
     class AddedHolder extends RecyclerView.ViewHolder{
         RecyclerView updatedList;
         public AddedHolder(View itemView) {
@@ -191,12 +196,14 @@ public class MainAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
                 @Override
                 public void refresh() {
-                    fetch();
-                    mainClickListener.clickedRetry();
+                    fetch(); // 데이터 새로고침
+                    mainClickListener.clickedRetry(); // 재시도 콜백 호출
                 }
             });
         }
     }
+
+    // 만화 에피소드 아이템을 표시하는 뷰홀더
     class MangaHolder extends RecyclerView.ViewHolder{
 
         TextView text;
@@ -224,7 +231,7 @@ public class MainAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     mainClickListener.clickedManga(m);
             });
 
-            if(m instanceof MainPage.RankingManga){
+            if(m instanceof MainPage.RankingManga){ // 랭킹 정보가 있는 만화일 경우 순위 표시
                 rankLayout.setVisibility(View.VISIBLE);
                 rank.setText(String.valueOf(((MainPage.RankingManga)m).getRanking()));
             }else{
@@ -232,10 +239,12 @@ public class MainAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             }
         }
     }
-    class HeaderHolder extends RecyclerView.ViewHolder{
+
+    // 헤더를 표시하는 뷰홀더
+    class HeaderHolder extends RecyclerView.ViewHolder{ // 헤더 텍스트뷰
         TextView text;
-        ImageView button;
-        View container;
+        ImageView button; // 버튼 이미지뷰
+        View container; // 컨테이너 뷰
 
         public HeaderHolder(@NonNull View itemView) {
             super(itemView);
@@ -250,16 +259,18 @@ public class MainAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
         public void setHeader(Header h){
             this.text.setText(h.header);
-            if(h instanceof ButtonHeader){
+            if(h instanceof ButtonHeader){ // 버튼이 있는 헤더일 경우
                 this.container.setClickable(true);
                 this.button.setVisibility(View.VISIBLE);
-                this.container.setOnClickListener(view -> ((ButtonHeader)h).callback());
-            }else{
+                this.container.setOnClickListener(view -> ((ButtonHeader)h).callback()); // 클릭 리스너 설정
+            }else{ // 일반 헤더일 경우
                 this.container.setClickable(false);
                 this.button.setVisibility(View.GONE);
             }
         }
     }
+
+    // 작품 제목 아이템을 표시하는 뷰홀더
     class TitleHolder extends RecyclerView.ViewHolder{
         TextView text;
         CardView card;
@@ -285,7 +296,7 @@ public class MainAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     mainClickListener.clickedTitle(t);
             });
 
-            if(t instanceof MainPage.RankingTitle){
+            if(t instanceof MainPage.RankingTitle){ // 랭킹 정보가 있는 작품일 경우 순위 표시
                 rankLayout.setVisibility(View.VISIBLE);
                 rank.setText(String.valueOf(((MainPage.RankingTitle)t).getRanking()));
             }else{
@@ -293,6 +304,8 @@ public class MainAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             }
         }
     }
+
+    // 태그 아이템을 표시하는 뷰홀더
     class TagHolder extends RecyclerView.ViewHolder{
         TextView tag;
         CardView card;
@@ -315,6 +328,7 @@ public class MainAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         }
     }
 
+    // 태그 기본 클래스
     static class Tag{
         public String tag;
         public Tag(String tag){this.tag=tag;}
@@ -324,21 +338,29 @@ public class MainAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             return tag;
         }
     }
+
+    // 이름 태그 클래스
     class NameTag extends Tag{
         public NameTag(String tag) {
             super(tag);
         }
     }
+
+    // 장르 태그 클래스
     class GenreTag extends Tag{
         public GenreTag(String tag) {
             super(tag);
         }
     }
+
+    // 발행 구분 태그 클래스
     class ReleaseTag extends Tag{
         public ReleaseTag(String tag) {
             super(tag);
         }
     }
+
+    // 헤더 기본 클래스
     static class Header{
         public String header;
 
@@ -346,6 +368,8 @@ public class MainAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             this.header = header;
         }
     }
+
+    // 버튼이 있는 헤더 클래스
     class ButtonHeader extends Header{
         public String header;
         Runnable callback;
@@ -360,28 +384,33 @@ public class MainAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             callback.run();
         }
     }
+
+    // 결과 없음 만화 객체
     static class NoResultManga extends Manga{
         public NoResultManga() {
             super(-1, "결과 없음", "", base_comic);
         }
     }
 
+    // 메인 클릭 리스너를 설정합니다.
     public void setMainClickListener(onItemClick main) {
         this.mainClickListener = main;
     }
 
+    // 아이템 클릭 이벤트를 위한 인터페이스
     public interface onItemClick{
-        void clickedManga(Manga m);
-        void clickedGenre(String t);
-        void clickedName(String t);
-        void clickedRelease(String t);
-        void clickedTitle(Title t);
-        void clickedMoreUpdated();
-        void captchaCallback();
-        void clickedSearch(String query);
-        void clickedRetry();
+        void clickedManga(Manga m); // 만화 에피소드 클릭 시
+        void clickedGenre(String t); // 장르 태그 클릭 시
+        void clickedName(String t); // 이름 태그 클릭 시
+        void clickedRelease(String t); // 발행 구분 태그 클릭 시
+        void clickedTitle(Title t); // 작품 제목 클릭 시
+        void clickedMoreUpdated(); // 최근 추가된 만화 더보기 클릭 시
+        void captchaCallback(); // 캡차 발생 시
+        void clickedSearch(String query); // 검색어 클릭 시
+        void clickedRetry(); // 재시도 클릭 시
     }
 
+    // 메인 페이지 데이터를 비동기적으로 가져오는 AsyncTask
     private class MainFetcher extends AsyncTask<Void, Integer, MainPage> {
         @Override
         protected void onPreExecute() {
@@ -401,13 +430,14 @@ public class MainAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         @Override
         protected void onPostExecute(MainPage u) {
             super.onPostExecute(u);
-            //update adapters?
+            // 데이터 로드 후 어댑터 업데이트
             if(u.getRecent().size() == 0){
-                // captcha?
+                // 캡차 발생 시
                 mainClickListener.captchaCallback();
             }
-            uadapter.setData(u.getRecent());
+            uadapter.setData(u.getRecent()); // 최근 추가된 만화 데이터 설정
 
+            // 기존의 '결과 없음' 아이템 제거
             for(int i=data.size()-1; i>=0; i--){
                 if(data.get(i) instanceof NoResultManga) {
                     data.remove(i);
@@ -415,9 +445,10 @@ public class MainAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 }
             }
 
+            // 주간 베스트 데이터 추가
             int i = data.indexOf(weekh);
             if(i>-1) {
-                if (u.getWeeklyRanking().size() == 0 && !(data.get(i+1) instanceof NoResultManga)){
+                if (u.getWeeklyRanking().size() == 0 && !(data.get(i+1) instanceof NoResultManga)){ // 결과가 없으면 '결과 없음' 표시
                     data.add(++i, new NoResultManga());
                     notifyItemInserted(i);
                 }

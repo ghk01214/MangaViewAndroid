@@ -48,20 +48,19 @@ import static ml.melun.mangaview.activity.FolderSelectActivity.MODE_FILE_SAVE;
 import static ml.melun.mangaview.activity.FolderSelectActivity.MODE_FILE_SELECT;
 import static ml.melun.mangaview.activity.FolderSelectActivity.MODE_FOLDER_SELECT;
 
+// 설정 화면을 담당하는 액티비티
 public class SettingsActivity extends AppCompatActivity {
 
-    //다운로드 위치 설정
-    //데이터 절약 모드 : 외부 이미지 로드 안함
-    //
-    Context context;
-    ConstraintLayout s_setHomeDir, s_resetHistory, s_dark, s_viewer, s_reverse, s_pageRtl, s_dataSave, s_tab, s_stretch, s_double, s_double_reverse;
-    Spinner s_tab_spinner, s_viewer_spinner;
-    Switch s_dark_switch, s_reverse_switch, s_pageRtl_switch, s_dataSave_switch, s_stretch_switch, s_double_switch, s_double_reverse_switch;
-    Boolean dark;
-    public static final String prefExtension = ".mvpref";
-    public static final int RESULT_NEED_RESTART = 7;
+    // 설정 항목들
+    Context context; // 액티비티 컨텍스트
+    ConstraintLayout s_setHomeDir, s_resetHistory, s_dark, s_viewer, s_reverse, s_pageRtl, s_dataSave, s_tab, s_stretch, s_double, s_double_reverse; // 각 설정 항목의 레이아웃
+    Spinner s_tab_spinner, s_viewer_spinner; // 탭 시작 위치, 뷰어 타입 선택 스피너
+    Switch s_dark_switch, s_reverse_switch, s_pageRtl_switch, s_dataSave_switch, s_stretch_switch, s_double_switch, s_double_reverse_switch; // 각 설정 항목의 스위치
+    Boolean dark; // 현재 다크 테마 적용 여부
+    public static final String prefExtension = ".mvpref"; // 환경설정 파일 확장자
+    public static final int RESULT_NEED_RESTART = 7; // 앱 재시작이 필요한 결과 코드
 
-    View.OnClickListener pbtnClear, nbtnClear, pbtnSet, nbtnSet;
+    View.OnClickListener pbtnClear, nbtnClear, pbtnSet, nbtnSet; // 단축키 설정 팝업의 버튼 리스너
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

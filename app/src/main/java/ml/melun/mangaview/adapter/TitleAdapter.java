@@ -24,21 +24,22 @@ import ml.melun.mangaview.mangaview.Title;
 
 import static ml.melun.mangaview.MainApplication.p;
 
+// 만화 작품 목록을 표시하는 RecyclerView 어댑터 (검색 필터링 기능 포함)
 public class TitleAdapter extends RecyclerView.Adapter<TitleAdapter.ViewHolder> implements Filterable {
 
-    private ArrayList<Title> mData;
-    private ArrayList<Title> mDataFiltered;
+    private ArrayList<Title> mData; // 원본 데이터 리스트
+    private ArrayList<Title> mDataFiltered; // 필터링된 데이터 리스트
     private LayoutInflater mInflater;
-    private ItemClickListener mClickListener;
+    private ItemClickListener mClickListener; // 아이템 클릭 리스너
     private Context mainContext;
-    boolean dark = false;
-    boolean save;
-    boolean resume = true;
-    boolean updated = false;
-    boolean forceThumbnail = false;
-    String path = "";
-    Filter filter;
-    boolean searching = false;
+    boolean dark = false; // 다크 테마 여부
+    boolean save; // 데이터 절약 모드 여부
+    boolean resume = true; // 이어보기 버튼 표시 여부
+    boolean updated = false; // (사용되지 않는 것으로 보임)
+    boolean forceThumbnail = false; // 썸네일 강제 표시 여부 (데이터 절약 모드에서도)
+    String path = ""; // (사용되지 않는 것으로 보임)
+    Filter filter; // 검색 필터
+    boolean searching = false; // 현재 검색 중인지 여부
 
     public TitleAdapter(Context context) {
         init(context);
@@ -48,9 +49,12 @@ public class TitleAdapter extends RecyclerView.Adapter<TitleAdapter.ViewHolder> 
         forceThumbnail = !online;
     }
 
+    // 썸네일 강제 표시 여부를 설정합니다.
     public void setForceThumbnail(boolean b){
         this.forceThumbnail = b;
     }
+
+    // 어댑터 초기화
     void init(Context context){
         p = new Preference(context);
         dark = p.getDarkTheme();
@@ -59,17 +63,19 @@ public class TitleAdapter extends RecyclerView.Adapter<TitleAdapter.ViewHolder> 
         mainContext = context;
         this.mData = new ArrayList<>();
         this.mDataFiltered = new ArrayList<>();
+        // 검색 필터 구현
         filter = new Filter() {
             @Override
             protected FilterResults performFiltering(CharSequence charSequence) {
                 String query = charSequence.toString();
-                if(query.isEmpty() || query.length() == 0){
+                if(query.isEmpty() || query.length() == 0){ // 검색어가 없으면 전체 데이터 표시
                     mDataFiltered = mData;
                     searching = false;
-                }else{
+                }else{ // 검색어가 있으면 필터링
                     searching = true;
                     ArrayList<Title> filtered = new ArrayList<>();
                     for(Title t : mData){
+                        // 제목 또는 작가에 검색어가 포함되면 추가
                         if(t.getName().toLowerCase().contains(query.toLowerCase()) || t.getAuthor().toLowerCase().contains(query.toLowerCase()))
                             filtered.add(t);
                     }
@@ -83,7 +89,7 @@ public class TitleAdapter extends RecyclerView.Adapter<TitleAdapter.ViewHolder> 
             @Override
             protected void publishResults(CharSequence charSequence, FilterResults filterResults) {
                 mDataFiltered = (ArrayList<Title>) filterResults.values;
-                notifyDataSetChanged();
+                notifyDataSetChanged(); // 데이터 변경 알림
             }
         };
     }
@@ -94,6 +100,7 @@ public class TitleAdapter extends RecyclerView.Adapter<TitleAdapter.ViewHolder> 
         return position;
     }
 
+    // 모든 데이터를 제거합니다.
     public void removeAll(){
         int originSize = mData.size();
         mData.clear();
@@ -107,6 +114,7 @@ public class TitleAdapter extends RecyclerView.Adapter<TitleAdapter.ViewHolder> 
         return new ViewHolder(view);
     }
 
+    // 데이터를 추가합니다. Title 또는 MTitle 객체를 받을 수 있습니다.
     public void addData(List<?> t){
         int oSize = mData.size();
         for(Object d:t){
@@ -119,15 +127,17 @@ public class TitleAdapter extends RecyclerView.Adapter<TitleAdapter.ViewHolder> 
                 mData.add(d2);
             }
         }
-        mDataFiltered = mData;
-        notifyItemRangeInserted(oSize,t.size());
+        mDataFiltered = mData; // 필터링된 데이터도 업데이트
+        notifyItemRangeInserted(oSize,t.size()); // 추가된 범위 알림
     }
 
+    // 데이터를 새로 설정합니다. 기존 데이터는 모두 제거됩니다.
     public void setData(List<?> t){
         clearData();
         addData(t);
     }
 
+    // 모든 데이터를 지우고 RecyclerView를 새로고침합니다.
     public void clearData(){
         mData.clear();
         mDataFiltered.clear();
@@ -135,14 +145,15 @@ public class TitleAdapter extends RecyclerView.Adapter<TitleAdapter.ViewHolder> 
     }
 
 
+    // 특정 아이템을 목록의 맨 위로 이동시킵니다.
     public void moveItemToTop(int from){
-        if(!searching) {
+        if(!searching) { // 검색 중이 아닐 때
             mData.add(0, mData.get(from));
             mData.remove(from + 1);
             for (int i = from; i > 0; i--) {
                 notifyItemMoved(i, i - 1);
             }
-        }else{
+        }else{ // 검색 중일 때
             Title t = mDataFiltered.get(from);
             int index = mData.indexOf(t);
             mData.add(0, mData.get(index));
@@ -150,11 +161,12 @@ public class TitleAdapter extends RecyclerView.Adapter<TitleAdapter.ViewHolder> 
         }
     }
 
+    // 특정 위치의 아이템을 제거합니다.
     public void remove(int pos){
-        if(!searching) {
+        if(!searching) { // 검색 중이 아닐 때
             mData.remove(pos);
             notifyItemRemoved(pos);
-        }else{
+        }else{ // 검색 중일 때
             Title t = mDataFiltered.get(pos);
             int index = mData.indexOf(t);
             mData.remove(index);
@@ -171,8 +183,11 @@ public class TitleAdapter extends RecyclerView.Adapter<TitleAdapter.ViewHolder> 
         String author = data.getAuthor();
         StringBuilder tags = new StringBuilder();
         int bookmark = data.getBookmark();
+
         holder.tagContainer.setVisibility(View.VISIBLE);
-        holder.baseModeStr.setText(data.getBaseModeStr());
+        holder.baseModeStr.setText(data.getBaseModeStr()); // 만화/웹툰 구분 표시
+
+        // 태그 표시
         for (String s : data.getTags()) {
             tags.append(s).append(" ");
         }
@@ -181,19 +196,20 @@ public class TitleAdapter extends RecyclerView.Adapter<TitleAdapter.ViewHolder> 
         holder.name.setText(title);
         holder.author.setText(author);
 
+        // 추천 수 등 카운터 정보 표시
         if(data.hasCounter()){
             holder.counterContainer.setVisibility(View.VISIBLE);
             holder.recommend_c.setText(String.valueOf(data.getRecommend_c()));
         }else{
-            //no counter
             holder.counterContainer.setVisibility(View.GONE);
         }
 
-
-
+        // 썸네일 이미지 로드 (데이터 절약 모드 및 강제 표시 여부에 따라)
         if(thumb.length()>1 && (!save || forceThumbnail)) Glide.with(holder.thumb).load(thumb).into(holder.thumb);
         else holder.thumb.setImageBitmap(null);
         if(save && !forceThumbnail) holder.thumb.setVisibility(View.GONE);
+
+        // 이어보기 버튼 표시 (북마크가 있고 이어보기 모드일 때)
         if(bookmark>0 && resume) holder.resume.setVisibility(View.VISIBLE);
         else holder.resume.setVisibility(View.GONE);
 
@@ -206,18 +222,19 @@ public class TitleAdapter extends RecyclerView.Adapter<TitleAdapter.ViewHolder> 
         return 0;
     }
 
+    // ViewHolder 클래스
     class ViewHolder extends RecyclerView.ViewHolder{
-        TextView name;
-        ImageView thumb, fav;
-        TextView author;
-        TextView tags;
-        TextView recommend_c, battery_c, comment_c, bookmark_c;
-        TextView baseModeStr;
-        ImageButton resume;
-        CardView card;
+        TextView name; // 제목
+        ImageView thumb, fav; // 썸네일, 즐겨찾기 아이콘 (fav는 사용되지 않는 것으로 보임)
+        TextView author; // 작가
+        TextView tags; // 태그
+        TextView recommend_c, battery_c, comment_c, bookmark_c; // 추천 수, 배터리, 댓글, 북마크 (배터리, 댓글, 북마크는 사용되지 않는 것으로 보임)
+        TextView baseModeStr; // 만화/웹툰 구분
+        ImageButton resume; // 이어보기 버튼
+        CardView card; // 아이템 카드뷰
 
-        View tagContainer;
-        View counterContainer;
+        View tagContainer; // 태그 컨테이너
+        View counterContainer; // 카운터 컨테이너
 
         ViewHolder(View itemView) {
             super(itemView);
@@ -236,43 +253,44 @@ public class TitleAdapter extends RecyclerView.Adapter<TitleAdapter.ViewHolder> 
             tagContainer = itemView.findViewById(R.id.TitleTagContainer);
             counterContainer = itemView.findViewById(R.id.TitleCounterContainer);
 
-
+            // 다크 테마 적용
             if(dark){
                 card.setBackgroundColor(ContextCompat.getColor(mainContext, R.color.colorDarkBackground));
                 resume.setBackgroundColor(ContextCompat.getColor(mainContext, R.color.resumeDark));
             }
+            // 클릭 리스너 설정
             card.setOnClickListener(v -> mClickListener.onItemClick(getAdapterPosition()));
             card.setOnLongClickListener(v -> {
                 mClickListener.onLongClick(v, getAdapterPosition());
                 return true;
             });
             resume.setOnClickListener(v -> mClickListener.onResumeClick(getAdapterPosition(), p.getBookmark(mDataFiltered.get(getAdapterPosition()))));
-
-
         }
     }
 
+    // 이어보기 버튼 표시 여부를 설정합니다.
     public void setResume(boolean resume){
         this.resume = resume;
     }
+
+    // 특정 위치의 아이템을 반환합니다.
     public Title getItem(int index) {
         return mDataFiltered.get(index);
     }
 
+    // 클릭 리스너를 설정합니다.
     public void setClickListener(ItemClickListener itemClickListener) {
         this.mClickListener = itemClickListener;
     }
 
+    // 아이템 클릭 이벤트를 위한 인터페이스
     public interface ItemClickListener {
-        void onItemClick(int position);
-        void onLongClick(View view, int position);
-        void onResumeClick(int position, int id);
+        void onItemClick(int position); // 아이템 클릭 시
+        void onLongClick(View view, int position); // 아이템 롱클릭 시
+        void onResumeClick(int position, int id); // 이어보기 버튼 클릭 시
     }
 
-
-
-    // filter
-
+    // 필터 객체를 반환합니다.
     @Override
     public Filter getFilter() {
         return filter;

@@ -54,34 +54,35 @@ import static ml.melun.mangaview.Utils.showTokiCaptchaPopup;
 import static ml.melun.mangaview.activity.CaptchaActivity.RESULT_CAPTCHA;
 import static ml.melun.mangaview.mangaview.Title.LOAD_CAPTCHA;
 
+// 만화 뷰어 액티비티 (ViewPager 사용)
 public class ViewerActivity3 extends AppCompatActivity {
-    List<String> imgs;
-    Manga manga;
+    List<String> imgs; // 현재 에피소드의 이미지 URL 목록
+    Manga manga; // 현재 보고 있는 만화 에피소드 객체
     Context context;
-    ViewPager viewPager;
-    boolean dark;
-    ImageButton next, prev;
-    TextView toolbarTitle;
-    AppBarLayout appbar, appbarBottom;
+    ViewPager viewPager; // 페이지를 넘기는 데 사용되는 ViewPager
+    boolean dark; // 다크 테마 여부
+    ImageButton next, prev; // 다음/이전 에피소드 버튼
+    TextView toolbarTitle; // 툴바 제목
+    AppBarLayout appbar, appbarBottom; // 상단/하단 앱바
     Toolbar toolbar;
-    Button cut, pageBtn;
-    ImageButton commentBtn;
-    int width;
+    Button cut, pageBtn; // 자동 분할 버튼, 페이지 번호 버튼
+    ImageButton commentBtn; // 댓글 버튼
+    int width; // 화면 너비
     Intent intent;
-    Title title;
-    String name;
-    boolean captchaChecked = false;
-    int id;
-    int viewerBookmark = 0;
-    int seed;
-    ViewerPagerAdapter pageAdapter;
-    int index;
-    Intent result;
-    List<Manga> eps;
-    boolean toolbarshow = true;
-    ViewPager.OnPageChangeListener listener;
-    CustomSpinner spinner;
-    CustomSpinnerAdapter spinnerAdapter;
+    Title title; // 현재 보고 있는 작품의 Title 객체
+    String name; // 현재 에피소드 이름
+    boolean captchaChecked = false; // 캡차 확인 여부
+    int id; // 현재 에피소드 ID
+    int viewerBookmark = 0; // 뷰어 내에서 마지막으로 본 페이지 인덱스
+    int seed; // 디코딩 시드
+    ViewerPagerAdapter pageAdapter; // ViewPager 어댑터
+    int index; // 현재 에피소드의 전체 에피소드 목록에서의 인덱스
+    Intent result; // 결과 인텐트
+    List<Manga> eps; // 현재 작품의 전체 에피소드 목록
+    boolean toolbarshow = true; // 툴바 표시 여부
+    ViewPager.OnPageChangeListener listener; // ViewPager 페이지 변경 리스너
+    CustomSpinner spinner; // 에피소드 선택 스피너
+    CustomSpinnerAdapter spinnerAdapter; // 스피너 어댑터
 
 
     @Override

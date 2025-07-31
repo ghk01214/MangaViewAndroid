@@ -35,11 +35,12 @@ import static ml.melun.mangaview.MainApplication.p;
 import static ml.melun.mangaview.Utils.showErrorPopup;
 import static ml.melun.mangaview.Utils.showPopup;
 
+// 캡차(CAPTCHA) 인증을 처리하는 액티비티
 public class CaptchaActivity extends AppCompatActivity {
-    WebView webView;
-    public static final int RESULT_CAPTCHA = 15;
-    public static final int REQUEST_CAPTCHA = 32;
-    String domain;
+    WebView webView; // 캡차 웹뷰
+    public static final int RESULT_CAPTCHA = 15; // 캡차 인증 성공 결과 코드
+    public static final int REQUEST_CAPTCHA = 32; // 캡차 인증 요청 코드
+    String domain; // 현재 웹뷰가 로드할 도메인
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

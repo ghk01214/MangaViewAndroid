@@ -60,34 +60,35 @@ import static ml.melun.mangaview.activity.CaptchaActivity.RESULT_CAPTCHA;
 import static ml.melun.mangaview.mangaview.Title.LOAD_CAPTCHA;
 import static ml.melun.mangaview.mangaview.Title.LOAD_OK;
 
+// 만화 뷰어 액티비티 (스트립 뷰어)
 public class ViewerActivity extends AppCompatActivity {
 
-    Manga manga;
-    Title title;
-    RecyclerView strip;
-    Context context = this;
-    StripAdapter stripAdapter;
-    androidx.appcompat.widget.Toolbar toolbar;
-    boolean toolbarshow = true;
-    TextView toolbarTitle;
-    AppBarLayout appbar, appbarBottom;
-    StripLayoutManager manager;
-    ImageButton next, prev;
-    Button cut, pageBtn;
-    List<Manga> eps;
+    Manga manga; // 현재 에피소드 객체
+    Title title; // 현재 작품 객체
+    RecyclerView strip; // 만화 페이지를 표시할 RecyclerView
+    Context context = this; // 현재 컨텍스트
+    StripAdapter stripAdapter; // 스트립 뷰어 어댑터
+    androidx.appcompat.widget.Toolbar toolbar; // 상단 툴바
+    boolean toolbarshow = true; // 툴바 표시 여부
+    TextView toolbarTitle; // 툴바 제목 텍스트뷰
+    AppBarLayout appbar, appbarBottom; // 상단 앱바, 하단 앱바
+    StripLayoutManager manager; // 스트립 뷰어 레이아웃 매니저
+    ImageButton next, prev; // 다음/이전 에피소드 버튼
+    Button cut, pageBtn; // 자동 분할 버튼, 페이지 번호 버튼
+    List<Manga> eps; // 현재 작품의 전체 에피소드 목록
 
-    boolean autoCut = false;
-    List<String> imgs;
-    boolean dark;
-    Intent result;
-    ImageButton commentBtn;
-    int width=0;
-    Intent intent;
-    boolean captchaChecked = false;
-    CustomSpinner spinner;
-    CustomSpinnerAdapter spinnerAdapter;
-    InfiniteScrollCallback infiniteScrollCallback;
-    loadImages loader;
+    boolean autoCut = false; // 자동 분할 모드 여부
+    List<String> imgs; // 현재 에피소드의 이미지 URL 목록
+    boolean dark; // 다크 테마 여부
+    Intent result; // 결과 인텐트
+    ImageButton commentBtn; // 댓글 버튼
+    int width=0; // 화면 너비
+    Intent intent; // 현재 액티비티를 시작한 인텐트
+    boolean captchaChecked = false; // 캡차 확인 여부
+    CustomSpinner spinner; // 에피소드 선택 스피너
+    CustomSpinnerAdapter spinnerAdapter; // 스피너 어댑터
+    InfiniteScrollCallback infiniteScrollCallback; // 무한 스크롤 콜백
+    loadImages loader; // 이미지 로더 AsyncTask
 
 
     @Override

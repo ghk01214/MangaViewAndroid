@@ -27,13 +27,14 @@ import ml.melun.mangaview.mangaview.Title;
 
 import static ml.melun.mangaview.MainApplication.p;
 
+// 만화 에피소드를 다운로드하는 액티비티
 public class DownloadActivity extends AppCompatActivity {
-    Title title;
-    SelectEpisodeAdapter adapter;
-    RecyclerView eplist;
-    boolean dark;
-    JSONArray selected;
-    boolean singleSelect = true;
+    Title title; // 다운로드할 만화 작품 객체
+    SelectEpisodeAdapter adapter; // 에피소드 선택 어댑터
+    RecyclerView eplist; // 에피소드 목록을 표시할 RecyclerView
+    boolean dark; // 다크 테마 여부
+    JSONArray selected; // 선택된 에피소드들의 인덱스
+    boolean singleSelect = true; // 단일 선택 모드 여부
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

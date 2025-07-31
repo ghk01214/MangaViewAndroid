@@ -37,10 +37,11 @@ import static ml.melun.mangaview.mangaview.MTitle.base_auto;
 import static ml.melun.mangaview.mangaview.MTitle.base_comic;
 import static ml.melun.mangaview.mangaview.MTitle.base_webtoon;
 
+// 디버깅 및 개발자 옵션을 제공하는 액티비티
 public class DebugActivity extends AppCompatActivity {
-    TextView output;
-    Context context;
-    ScrollView scroll;
+    TextView output; // 디버그 출력을 표시할 텍스트뷰
+    Context context; // 액티비티 컨텍스트
+    ScrollView scroll; // 출력을 스크롤할 스크롤뷰
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

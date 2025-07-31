@@ -36,18 +36,19 @@ import static ml.melun.mangaview.MainApplication.httpClient;
 import static ml.melun.mangaview.MainApplication.p;
 import static ml.melun.mangaview.Utils.writeComment;
 
+// 댓글 화면을 담당하는 액티비티
 public class CommentsActivity extends AppCompatActivity {
 
   /** The {@link ViewPager} that will host the section contents. */
-  private ViewPager mViewPager;
+  private ViewPager mViewPager; // 섹션 내용을 호스팅할 ViewPager
 
-  ArrayList<Comment> comments, bcomments;
-  public CommentsAdapter adapter, badapter;
-  Context context;
-  TabLayout tab;
-  int id;
-  ImageButton submit;
-  EditText input;
+  ArrayList<Comment> comments, bcomments; // 일반 댓글 목록, 베스트 댓글 목록
+  public CommentsAdapter adapter, badapter; // 일반 댓글 어댑터, 베스트 댓글 어댑터
+  Context context; // 액티비티 컨텍스트
+  TabLayout tab; // 탭 레이아웃
+  int id; // 현재 만화 ID
+  ImageButton submit; // 댓글 제출 버튼
+  EditText input; // 댓글 입력 필드
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {

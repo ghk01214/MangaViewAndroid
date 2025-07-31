@@ -7,6 +7,7 @@ import android.view.MenuItem;
 
 import ml.melun.mangaview.R;
 
+// 오픈소스 라이선스 정보를 표시하는 액티비티
 public class LicenseActivity extends AppCompatActivity {
 
     @Override

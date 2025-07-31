@@ -52,33 +52,34 @@ import static ml.melun.mangaview.MainApplication.p;
 import static ml.melun.mangaview.Utils.CODE_SCOPED_STORAGE;
 import static ml.melun.mangaview.Utils.filterFolder;
 
+// 만화 다운로드 서비스를 제공하는 클래스
 public class Downloader extends Service {
-    String homeDir;
-    String baseUrl;
-    ArrayList<DownloadTitle> titles;
-    ArrayList<JSONArray> selected;
-    float progress = 0;
-    int maxProgress=1000;
-    String notiTitle="";
-    public static boolean running = false;
-    public static boolean updateDownloading = false;
-    NotificationCompat.Builder notification;
-    public static final String ACTION_START = "ml.melun.mangaview.action.START";
-    public static final String ACTION_STOP = "ml.melun.mangaview.action.STOP";
-    public static final String ACTION_QUEUE = "ml.melun.mangaview.action.QUEUE";
-    public static final String ACTION_UPDATE = "ml.melun.mangaview.action.UPDATE";
-    public static final String ACTION_FORCE_STOP = "ml.melun.mangaview.action.FORCE_STOP";
-    public static final String BROADCAST_STOP = "ml.melun.mangaview.broadcast.STOP";
-    downloadTitle dt;
-    Download d;
-    NotificationManager notificationManager;
-    public static final int nid = 16848323;
-    public static final String channeld = "MangaViewDL";
-    PendingIntent pendingIntent;
-    PendingIntent stopIntent;
-    Context serviceContext;
-    Map<String, String> cookies;
-    int failures = 0;
+    String homeDir; // 다운로드 저장 경로
+    String baseUrl; // 만화 사이트 기본 URL
+    ArrayList<DownloadTitle> titles; // 다운로드 대기열에 있는 작품 목록
+    ArrayList<JSONArray> selected; // 각 작품별 선택된 에피소드 인덱스 목록
+    float progress = 0; // 현재 다운로드 진행률
+    int maxProgress=1000; // 진행률 최대값
+    String notiTitle=""; // 알림 제목
+    public static boolean running = false; // 다운로더 서비스 실행 중 여부
+    public static boolean updateDownloading = false; // 앱 업데이트 다운로드 중 여부
+    NotificationCompat.Builder notification; // 알림 빌더
+    public static final String ACTION_START = "ml.melun.mangaview.action.START"; // 다운로드 시작 액션
+    public static final String ACTION_STOP = "ml.melun.mangaview.action.STOP"; // 다운로드 중지 액션
+    public static final String ACTION_QUEUE = "ml.melun.mangaview.action.QUEUE"; // 다운로드 대기열 추가 액션
+    public static final String ACTION_UPDATE = "ml.melun.mangaview.action.UPDATE"; // 앱 업데이트 다운로드 액션
+    public static final String ACTION_FORCE_STOP = "ml.melun.mangaview.action.FORCE_STOP"; // 강제 중지 액션
+    public static final String BROADCAST_STOP = "ml.melun.mangaview.broadcast.STOP"; // 다운로드 중지 브로드캐스트
+    downloadTitle dt; // 작품 다운로드 AsyncTask
+    Download d; // 앱 업데이트 다운로드 AsyncTask
+    NotificationManager notificationManager; // 알림 관리자
+    public static final int nid = 16848323; // 알림 ID
+    public static final String channeld = "MangaViewDL"; // 알림 채널 ID
+    PendingIntent pendingIntent; // 알림 클릭 시 실행될 인텐트
+    PendingIntent stopIntent; // 알림 중지 버튼 클릭 시 실행될 인텐트
+    Context serviceContext; // 서비스 컨텍스트
+    Map<String, String> cookies; // HTTP 요청에 사용될 쿠키
+    int failures = 0; // 다운로드 실패 횟수
 
     public static boolean isRunning(){
         return updateDownloading || running;
