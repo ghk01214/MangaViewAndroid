@@ -35,6 +35,7 @@ import static ml.melun.mangaview.Utils.showPopup;
 import static ml.melun.mangaview.Utils.viewerIntent;
 import static ml.melun.mangaview.mangaview.MTitle.base_auto;
 import static ml.melun.mangaview.mangaview.MTitle.base_comic;
+import static ml.melun.mangaview.mangaview.MTitle.base_novel;
 import static ml.melun.mangaview.mangaview.MTitle.base_webtoon;
 
 // 디버깅 및 개발자 옵션을 제공하는 액티비티
@@ -121,6 +122,14 @@ public class DebugActivity extends AppCompatActivity {
                 viewer.putExtra("online", true);
                 ((Activity) context).startActivity(viewer);
             },false);
+        });
+
+        // 소설 뷰어 테스터 - 직접 테스트
+        this.findViewById(R.id.debug_novel_test).setOnClickListener(v -> {
+            output.append("소설 뷰어 테스트 시작 - 테스트 소설\n");
+            Intent viewer = viewerIntent(context, new Manga(999999, "테스트 소설", "", base_novel));
+            viewer.putExtra("online", true);
+            ((Activity) context).startActivity(viewer);
         });
 
     }

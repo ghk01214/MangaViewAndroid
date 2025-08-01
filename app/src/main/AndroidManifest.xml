@@ -97,6 +97,10 @@
             android:configChanges="orientation|screenSize"
             android:theme="@style/AppTheme.Viewer" />
         <activity
+            android:name=".activity.ViewerActivity4"
+            android:configChanges="orientation|screenSize"
+            android:theme="@style/AppTheme.Viewer" />
+        <activity
             android:name=".activity.LoginActivity"
             android:configChanges="orientation|screenSize"
             android:label="계정" />

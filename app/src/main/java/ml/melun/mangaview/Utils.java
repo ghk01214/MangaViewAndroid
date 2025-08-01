@@ -59,10 +59,12 @@ import ml.melun.mangaview.activity.LoginActivity;
 import ml.melun.mangaview.activity.ViewerActivity;
 import ml.melun.mangaview.activity.ViewerActivity2;
 import ml.melun.mangaview.activity.ViewerActivity3;
+import ml.melun.mangaview.activity.ViewerActivity4;
 import ml.melun.mangaview.interfaces.IntegerCallback;
 import ml.melun.mangaview.interfaces.StringCallback;
 import ml.melun.mangaview.mangaview.CustomHttpClient;
 import ml.melun.mangaview.mangaview.Login;
+import ml.melun.mangaview.mangaview.MTitle;
 import ml.melun.mangaview.mangaview.Manga;
 import ml.melun.mangaview.mangaview.Title;
 import okhttp3.FormBody;
@@ -172,17 +174,25 @@ public class Utils {
 
     public static Intent viewerIntent(Context context, Manga manga){
         Intent viewer = null;
-        switch (new Preference(context).getViewerType()){
-            case 0:
-                viewer = new Intent(context, ViewerActivity.class);
-                break;
-            case 2:
-                viewer = new Intent(context, ViewerActivity3.class);
-                break;
-            case 1:
-                viewer = new Intent(context, ViewerActivity2.class);
-                break;
+        
+        // 소설인 경우 ViewerActivity4 사용
+        if(manga.getBaseMode() == MTitle.base_novel){
+            viewer = new Intent(context, ViewerActivity4.class);
+        } else {
+            // 만화/웹툰인 경우 기존 뷰어 사용
+            switch (new Preference(context).getViewerType()){
+                case 0:
+                    viewer = new Intent(context, ViewerActivity.class);
+                    break;
+                case 2:
+                    viewer = new Intent(context, ViewerActivity3.class);
+                    break;
+                case 1:
+                    viewer = new Intent(context, ViewerActivity2.class);
+                    break;
+            }
         }
+        
         viewer.putExtra("manga",new Gson().toJson(manga));
         return viewer;
     }
@@ -768,6 +778,13 @@ public class Utils {
         p.setLogin(null);
         //open login activity
         ((Activity) context).startActivityForResult(new Intent(context, LoginActivity.class), REQUEST_LOGIN);
+    }
+    
+    // 클립보드에 텍스트 복사
+    public static void copyToClipboard(Context context, String text) {
+        ClipboardManager clipboard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
+        ClipData clip = ClipData.newPlainText("소설 내용", text);
+        clipboard.setPrimaryClip(clip);
     }
 
 

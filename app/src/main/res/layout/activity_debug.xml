@@ -91,6 +91,12 @@
                 android:layout_width="match_parent"
                 android:text="file write test" />
 
+            <Button
+                android:id="@+id/debug_novel_test"
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:text="소설 뷰어 테스트" />
+
 
 
             <TextView

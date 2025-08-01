@@ -114,6 +114,7 @@ public class MTitle{
     public static final int base_auto = 0; // 자동
     public static final int base_comic = 1; // 만화
     public static final int base_webtoon = 2; // 웹툰
+    public static final int base_novel = 3; // 소설
 
     // 작품 종류(int)를 URL에 사용될 영문 문자열로 변환합니다.
     public static String baseModeStr(int mode){
@@ -122,6 +123,8 @@ public class MTitle{
                 return "comic";
             case base_webtoon:
                 return "webtoon";
+            case base_novel:
+                return "novel";
             default:
                 return "comic";
         }
@@ -133,6 +136,8 @@ public class MTitle{
                 return "만화";
             case base_webtoon:
                 return "웹툰";
+            case base_novel:
+                return "소설";
             default:
                 return "만화";
         }
