@@ -7,9 +7,6 @@
         android:title="새로고침"
         app:showAsAction="never" />
 
-    <item
-        android:id="@+id/action_copy"
-        android:title="텍스트 복사"
-        app:showAsAction="never" />
+    
 
 </menu>

@@ -73,21 +73,4 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <Button
-        android:background="@drawable/button_bg"
-        android:foreground="?android:attr/selectableItemBackground"
-        android:id="@+id/novelCopyBtn"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:layout_marginStart="4dp"
-        android:layout_marginTop="8dp"
-        android:layout_width="wrap_content"
-        android:minWidth="0dp"
-        android:padding="5dp"
-        android:text="복사"
-        android:textColor="@android:color/white"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toEndOf="@id/novelFontBtn"
-        app:layout_constraintTop_toTopOf="parent" />
-
 </androidx.constraintlayout.widget.ConstraintLayout>

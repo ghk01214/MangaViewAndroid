@@ -6,6 +6,8 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.nio.charset.StandardCharsets;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import okhttp3.Response;
 
@@ -50,7 +52,7 @@ public class NovelPage {
             // 소설 페이지 URL 생성
             String url = "/" + baseModeStr(manga.getBaseMode()) + "/" + manga.getId();
             
-            Response response = client.mget(url, true, null);
+            Response response = client.mget(url, false, null);
             String body = response.body().string();
             
             if(body.contains("Connect Error: Connection timed out")){
@@ -75,13 +77,13 @@ public class NovelPage {
             }
             
             // 캡차나 차단 페이지 감지
-            if(body.contains("captcha") || body.contains("cloudflare") || 
-               body.contains("Just a moment") || body.contains("Please wait") ||
-               body.contains("DDoS protection") || body.contains("Access denied")){
-                response.close();
-                content = "사이트에서 접근을 차단했습니다. 잠시 후 다시 시도해주세요.";
-                return 1; // 캡차/차단 감지
-            }
+            // if(body.contains("captcha") || body.contains("cloudflare") || 
+            //    body.contains("Just a moment") || body.contains("Please wait") ||
+            //    body.contains("DDoS protection") || body.contains("Access denied")){
+            //     response.close();
+            //     content = "사이트에서 접근을 차단했습니다. 잠시 후 다시 시도해주세요.";
+            //     return 1; // 캡차/차단 감지
+            // }
             
             // 제목 추출
             Element titleElement = doc.selectFirst("h1.view-title, .title, h1");
@@ -89,32 +91,79 @@ public class NovelPage {
                 title = titleElement.text().trim();
             }
             
-            // 소설 내용 추출 - 여러 가능한 선택자 시도
-            Elements contentElements = doc.select(".view-content, .content, .novel-content, .text-content, #content");
-            
+            // 소설 내용 추출 - 사용자 피드백 기반
             StringBuilder contentBuilder = new StringBuilder();
-            
-            if(!contentElements.isEmpty()){
-                for(Element contentElement : contentElements){
-                    // 스크립트, 스타일, 광고 등 불필요한 요소 제거
-                    contentElement.select("script, style, .ad, .advertisement, .banner").remove();
-                    
-                    String text = contentElement.text();
-                    if(text != null && !text.trim().isEmpty()){
-                        contentBuilder.append(text.trim()).append("\n\n");
+
+            // 1. #novel_content ID를 가진 요소에서 내용 추출 시도
+            Element novelContentElement = doc.selectFirst("#novel_content");
+            if (novelContentElement != null) {
+                novelContentElement.select("script, style, .ad, .advertisement, .banner").remove();
+                String text = novelContentElement.text();
+                if (text != null && !text.trim().isEmpty()) {
+                    contentBuilder.append(text.trim()).append("\n\n");
+                }
+            }
+
+            // 2. .view-padding 클래스 아래의 고유 ID를 가진 블록에서 내용 추출 시도
+            if (contentBuilder.length() == 0) {
+                Elements viewPaddingElements = doc.select(".view-padding");
+                for (Element viewPaddingElement : viewPaddingElements) {
+                    // view-padding 아래의 모든 자식 요소 중 ID를 가진 요소들을 찾음
+                    Elements childrenWithIds = viewPaddingElement.select("[id]");
+                    for (Element child : childrenWithIds) {
+                        // 고유 ID를 가진 블록에서 내용 추출 (광고 등 제외)
+                        if (!child.id().contains("ad") && !child.id().contains("banner")) {
+                            child.select("script, style, .ad, .advertisement, .banner").remove();
+                            String text = child.text();
+                            if (text != null && !text.trim().isEmpty()) {
+                                contentBuilder.append(text.trim()).append("\n\n");
+                                // 첫 번째 유효한 블록을 찾으면 중단
+                                break;
+                            }
+                        }
+                    }
+                    if (contentBuilder.length() > 0) break; // view-padding 요소 중 하나에서 찾았으면 중단
+                }
+            }
+
+            // 3. 기존 스크립트에서 소설 내용 추출 시도 (위에서 못 찾았을 경우)
+            if (contentBuilder.length() == 0) {
+                Elements scripts = doc.select("script");
+                for (Element script : scripts) {
+                    String scriptContent = script.html();
+                    Pattern pattern = Pattern.compile("var\\s+\\w+Text\\s*=\\s*\"([^\"]*)\""); // 예시 패턴
+                    Matcher matcher = pattern.matcher(scriptContent);
+                    if (matcher.find()) {
+                        String extractedText = matcher.group(1);
+                        if (extractedText != null && !extractedText.trim().isEmpty()) {
+                            contentBuilder.append(extractedText.trim()).append("\n\n");
+                            break;
+                        }
                     }
                 }
-            } else {
-                // 기본 선택자로 본문 내용 추출 시도
-                Element bodyElement = doc.selectFirst("body");
-                if(bodyElement != null){
-                    bodyElement.select("script, style, nav, header, footer, .menu, .navigation, .ad, .advertisement").remove();
-                    
-                    Elements paragraphs = bodyElement.select("p, div.text, .paragraph");
-                    for(Element p : paragraphs){
-                        String text = p.text().trim();
-                        if(text.length() > 20){ // 의미있는 텍스트만 추가
-                            contentBuilder.append(text).append("\n\n");
+            }
+
+            // 4. 기존 기본 선택자로 본문 내용 추출 시도 (위에서 모두 못 찾았을 경우)
+            if (contentBuilder.length() == 0) {
+                Elements contentElements = doc.select(".view-content, .content, .novel-content, .text-content, #content");
+                if(!contentElements.isEmpty()){
+                    for(Element contentElement : contentElements){
+                        contentElement.select("script, style, .ad, .advertisement, .banner").remove();
+                        String text = contentElement.text();
+                        if(text != null && !text.trim().isEmpty()){
+                            contentBuilder.append(text.trim()).append("\n\n");
+                        }
+                    }
+                } else {
+                    Element bodyElement = doc.selectFirst("body");
+                    if(bodyElement != null){
+                        bodyElement.select("script, style, nav, header, footer, .menu, .navigation, .ad, .advertisement").remove();
+                        Elements paragraphs = bodyElement.select("p, div.text, .paragraph");
+                        for(Element p : paragraphs){
+                            String text = p.text().trim();
+                            if(text.length() > 20){
+                                contentBuilder.append(text).append("\n\n");
+                            }
                         }
                     }
                 }
@@ -129,9 +178,9 @@ public class NovelPage {
                 
                 for(Element element : allText){
                     if(element.tagName().matches("p|div|span|h[1-6]")){
-                        String text = element.ownText().trim();
-                        if(text.length() > 10){
-                            contentBuilder.append(text).append("\n");
+                        String html = element.html().trim();
+                        if(html.length() > 10){
+                            contentBuilder.append(html);
                         }
                     }
                 }

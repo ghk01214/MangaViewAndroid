@@ -22,6 +22,7 @@ import com.google.android.material.appbar.AppBarLayout;
 import com.google.gson.Gson;
 
 import java.util.List;
+import android.text.Html;
 
 import ml.melun.mangaview.R;
 import ml.melun.mangaview.Utils;
@@ -42,7 +43,7 @@ public class ViewerActivity4 extends AppCompatActivity {
     private AppBarLayout appbar, appbarBottom;
     private ImageButton backButton, menuButton;
     private ImageButton next, prev;
-    private Button novelFontBtn, novelCopyBtn;
+    private Button novelFontBtn;
     private CustomSpinner spinner;
     private CustomSpinnerAdapter spinnerAdapter;
     
@@ -64,7 +65,7 @@ public class ViewerActivity4 extends AppCompatActivity {
             setTheme(R.style.AppTheme_NoActionBar);
         }
         
-        setContentView(R.layout.activity_novel_viewer_new);
+        setContentView(R.layout.activity_viewer4);
         
         // Intent로부터 만화 정보 가져오기
         Intent intent = getIntent();
@@ -92,7 +93,6 @@ public class ViewerActivity4 extends AppCompatActivity {
         next = findViewById(R.id.toolbar_next);
         prev = findViewById(R.id.toolbar_previous);
         novelFontBtn = findViewById(R.id.novelFontBtn);
-        novelCopyBtn = findViewById(R.id.novelCopyBtn);
         spinner = findViewById(R.id.toolbar_spinner);
         
         // 제목 설정
@@ -124,20 +124,42 @@ public class ViewerActivity4 extends AppCompatActivity {
         // 폰트 크기 조정 버튼
         novelFontBtn.setOnClickListener(v -> showFontSizeMenu(v));
         
-        // 텍스트 복사 버튼
-        novelCopyBtn.setOnClickListener(v -> {
-            if(novelPage != null && novelPage.getContent() != null){
-                Utils.copyToClipboard(this, novelPage.getContent());
-                Toast.makeText(this, "텍스트가 클립보드에 복사되었습니다", Toast.LENGTH_SHORT).show();
+        
+        
+        // 이전/다음 에피소드 버튼
+        prev.setOnClickListener(v -> {
+            if (eps != null && manga != null) {
+                int currentIndex = eps.indexOf(manga);
+                if (currentIndex < eps.size() - 1) { // 다음 에피소드가 있다면 (이전 에피소드 버튼이므로 인덱스 증가)
+                    manga = eps.get(currentIndex + 1);
+                    loadNovelContent();
+                } else {
+                    Toast.makeText(this, "이전 에피소드가 없습니다.", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+        next.setOnClickListener(v -> {
+            if (eps != null && manga != null) {
+                int currentIndex = eps.indexOf(manga);
+                if (currentIndex > 0) { // 이전 에피소드가 있다면 (다음 에피소드 버튼이므로 인덱스 감소)
+                    manga = eps.get(currentIndex - 1);
+                    loadNovelContent();
+                } else {
+                    Toast.makeText(this, "다음 에피소드가 없습니다.", Toast.LENGTH_SHORT).show();
+                }
             }
         });
         
-        // 이전/다음 에피소드 버튼 (현재는 비활성화)
-        prev.setOnClickListener(v -> Toast.makeText(this, "이전 에피소드", Toast.LENGTH_SHORT).show());
-        next.setOnClickListener(v -> Toast.makeText(this, "다음 에피소드", Toast.LENGTH_SHORT).show());
-        
-        // 스피너 (현재는 비활성화)
-        spinner.setVisibility(View.GONE);
+        // 스피너 활성화 및 설정
+        spinner.setVisibility(View.VISIBLE);
+        spinnerAdapter = new CustomSpinnerAdapter(context);
+        spinnerAdapter.setListener((m, i) -> {
+            if (!isLoading) {
+                manga = m;
+                loadNovelContent();
+            }
+        });
+        spinner.setAdapter(spinnerAdapter);
     }
     
     private void showMenu(View view) {
@@ -149,12 +171,7 @@ public class ViewerActivity4 extends AppCompatActivity {
                 case R.id.action_refresh:
                     loadNovelContent();
                     return true;
-                case R.id.action_copy:
-                    if(novelPage != null && novelPage.getContent() != null){
-                        Utils.copyToClipboard(this, novelPage.getContent());
-                        Toast.makeText(this, "텍스트가 클립보드에 복사되었습니다", Toast.LENGTH_SHORT).show();
-                    }
-                    return true;
+                
                 default:
                     return false;
             }
@@ -242,8 +259,37 @@ public class ViewerActivity4 extends AppCompatActivity {
         findViewById(R.id.novelProgressBar).setVisibility(View.VISIBLE);
         novelContent.setVisibility(View.GONE);
         
+        // 에피소드 목록이 없으면 로드
+        if (eps == null || eps.isEmpty()) {
+            if (manga.getTitle() != null) {
+                eps = manga.getTitle().getEps();
+            }
+        }
+        
         new LoadNovelTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
+
+    private void updateEpisodeButtons() {
+        if (eps != null && manga != null) {
+            int currentIndex = eps.indexOf(manga);
+            next.setEnabled(currentIndex > 0);
+            prev.setEnabled(currentIndex < eps.size() - 1);
+            next.setColorFilter(next.isEnabled() ? null : Color.BLACK);
+            prev.setColorFilter(prev.isEnabled() ? null : Color.BLACK);
+        } else {
+            next.setEnabled(false);
+            prev.setEnabled(false);
+            next.setColorFilter(Color.BLACK);
+            prev.setColorFilter(Color.BLACK);
+        }
+    }
+
+    private void updateSpinner() {
+        if (eps != null && manga != null) {
+            spinnerAdapter.setData(eps, manga);
+            spinner.setSelection(manga);
+        }
+    }    
     
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -288,6 +334,8 @@ public class ViewerActivity4 extends AppCompatActivity {
                 if(novelPage.getTitle() != null && !novelPage.getTitle().isEmpty()){
                     toolbarTitle.setText(novelPage.getTitle());
                 }
+                updateEpisodeButtons();
+                updateSpinner();
             } else {
                 // 로드 실패한 경우
                 String errorMessage = "소설을 불러올 수 없습니다.";
