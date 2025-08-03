@@ -239,6 +239,18 @@ public class ViewerActivity extends AppCompatActivity {
         next.setOnClickListener(v -> loadManga(manga.nextEp()));
         prev.setOnClickListener(v -> loadManga(manga.prevEp()));
         cut.setOnClickListener(v -> toggleAutoCut());
+        
+        // 댓글 버튼 초기화
+        commentBtn.setOnClickListener(v -> {
+            if (manga != null) {
+                Intent commentActivity = new Intent(context, CommentsActivity.class);
+                Gson gson = new Gson();
+                commentActivity.putExtra("comments", gson.toJson(manga.getComments()));
+                commentActivity.putExtra("bestComments", gson.toJson(manga.getBestComments()));
+                commentActivity.putExtra("id", manga.getId());
+                startActivity(commentActivity);
+            }
+        });
 
         pageBtn.setOnClickListener(v -> {
             PageItem current = stripAdapter.getCurrentVisiblePage();
@@ -376,15 +388,6 @@ public class ViewerActivity extends AppCompatActivity {
             if(item != null) {
                 pageBtn.setText(item.index+1 + "/" + item.manga.getImgs(context).size());
                 toolbarTitle.setText(item.manga.getName());
-                commentBtn.setOnClickListener(v -> {
-                    Intent commentActivity = new Intent(context, CommentsActivity.class);
-                    //create gson and put extra
-                    Gson gson = new Gson();
-                    commentActivity.putExtra("comments", gson.toJson(item.manga.getComments()));
-                    commentActivity.putExtra("bestComments", gson.toJson(item.manga.getBestComments()));
-                    commentActivity.putExtra("id", item.manga.getId());
-                    startActivity(commentActivity);
-                });
                 appbar.animate().translationY(0);
                 appbarBottom.animate().translationY(0);
                 toolbarshow = true;

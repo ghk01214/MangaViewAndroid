@@ -32,3 +32,4 @@ app/release/
 
 *.iml
 *.p12
+*.keystore

@@ -212,10 +212,7 @@ public class Novel {
                 // 댓글 파싱
                 parseComments(d);
 
-                Log.d("Novel", "소설 로딩 완료: " + name + ", 내용 길이: " + content.length());
-
             } catch (Exception e) {
-                Log.e("Novel", "소설 로딩 오류", e);
                 e.printStackTrace();
                 content = "소설 내용을 불러오는 중 오류가 발생했습니다: " + e.getMessage();
                 return 1;
@@ -253,7 +250,6 @@ public class Novel {
 
                 Element element = doc.selectFirst(selector);
                 if (element != null) {
-                    Log.d("Novel", "선택자 '" + selector + "'로 요소 찾음");
                     // 불필요한 요소들 제거
                     element.select("script, style, noscript, .ad, .advertisement, .banner, .adsense, [id*=ad], [class*=ad], " +
                                  ".navigation, .nav, .menu, .header, .footer, .sidebar, .comments, .comment, " +
@@ -263,7 +259,6 @@ public class Novel {
                     // p 태그들 먼저 시도
                     Elements paragraphs = element.select("p");
                     if (!paragraphs.isEmpty()) {
-                        Log.d("Novel", "선택자 '" + selector + "'에서 " + paragraphs.size() + "개의 p 태그 발견");
                         for (Element p : paragraphs) {
                             String paragraphText = p.text().trim();
                             // 짧거나 의미없는 텍스트 제외
@@ -278,11 +273,9 @@ public class Novel {
                     if (!contentFound) {
                         // p 태그가 없으면 전체 텍스트 사용
                         String text = element.text().trim();
-                        Log.d("Novel", "선택자 '" + selector + "'로 찾은 텍스트 길이: " + text.length());
                         if (text.length() > 100 && !isUnwantedText(text)) {
                             contentBuilder.append(text).append("\n\n");
                             contentFound = true;
-                            Log.d("Novel", "선택자 '" + selector + "'로 전체 텍스트에서 콘텐츠 추출 성공");
                             break;
                         }
                     }
@@ -293,7 +286,6 @@ public class Novel {
             if (!contentFound) {
                 Elements containerElements = doc.select(".view-padding, .container, .wrapper, .main-content");
                 for (Element container : containerElements) {
-                    Log.d("Novel", "컨테이너에서 콘텐츠 검색: " + container.className());
                     // 컨테이너 내의 p 태그들 먼저 시도
                     Elements paragraphs = container.select("p");
                     if (!paragraphs.isEmpty()) {
@@ -312,25 +304,21 @@ public class Novel {
 
             // 3. 최후의 수단으로 div 태그들 검색
             if (!contentFound) {
-                Log.d("Novel", "최후의 수단으로 div 태그들 검색");
                 Elements divs = doc.select("div");
                 for (Element div : divs) {
                     String divText = div.ownText().trim(); // 자식 요소 제외하고 직접 텍스트만
                     if (divText.length() > 100 && !isUnwantedText(divText)) {
                         contentBuilder.append(divText).append("\n\n");
                         contentFound = true;
-                        Log.d("Novel", "div 태그에서 콘텐츠 추출 성공: " + divText.substring(0, Math.min(50, divText.length())));
                         break;
                     }
                 }
             }
 
             String result = contentBuilder.toString().trim();
-            Log.d("Novel", "최종 소설 내용 길이: " + result.length());
             return result;
 
         } catch (Exception e) {
-            Log.e("Novel", "소설 내용 파싱 오류", e);
             return "소설 내용을 파싱하는 중 오류가 발생했습니다: " + e.getMessage();
         }
     }
