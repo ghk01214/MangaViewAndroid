@@ -57,7 +57,7 @@ import static ml.melun.mangaview.Utils.showTokiCaptchaPopup;
 import static ml.melun.mangaview.activity.CaptchaActivity.RESULT_CAPTCHA;
 import static ml.melun.mangaview.mangaview.Title.LOAD_CAPTCHA;
 
-// 만화 뷰어 액티비티 (ViewPager 사용)
+// 만화 뷰어 액티비티 (컷툰 뷰어)
 public class ViewerActivity3 extends AppCompatActivity {
     List<String> imgs; // 현재 에피소드의 이미지 URL 목록
     Manga manga; // 현재 보고 있는 만화 에피소드 객체

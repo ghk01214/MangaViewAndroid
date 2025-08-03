@@ -5,45 +5,19 @@
     android:layout_height="match_parent"
     android:layout_width="match_parent"
     android:theme="@style/AppTheme.Viewer"
-    tools:context=".activity.ViewerActivity4"
+    tools:context=".activity.ViewerActivity"
     android:fitsSystemWindows="false">
 
-    <!-- 메인 텍스트 뷰어 영역 -->
-    <ScrollView
-        android:id="@+id/novelScrollView"
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/strip"
         android:layout_height="match_parent"
         android:layout_width="match_parent"
-        android:padding="16dp"
-        android:scrollbars="vertical"
-        android:fillViewport="true">
+        android:paddingTop="@dimen/toolbar_height"
+        android:paddingBottom="@dimen/toolbar_height"
+        android:clipToPadding="false"
+        android:scrollbars="vertical" />
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/novelContent"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textSize="16sp"
-                android:lineSpacingExtra="4dp"
-                android:textColor="?android:attr/textColorPrimary"
-                android:visibility="gone"
-                android:text="" />
-
-            <ProgressBar
-                android:id="@+id/novelProgressBar"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:visibility="gone" />
-
-        </LinearLayout>
-
-    </ScrollView>
-
-    <!-- 상단 툴바 -->
     <com.google.android.material.appbar.AppBarLayout
         android:alpha="0.8"
         android:id="@+id/viewerAppbar"
@@ -61,13 +35,12 @@
             app:contentInsetStart="0dp"
             app:popupTheme="@style/AppTheme.PopupOverlay">
 
-            <include layout="@layout/novel_viewer_toolbar" />
+            <include layout="@layout/viewer_toolbar" />
 
         </androidx.appcompat.widget.Toolbar>
 
     </com.google.android.material.appbar.AppBarLayout>
 
-    <!-- 하단 툴바 -->
     <com.google.android.material.appbar.AppBarLayout
         android:alpha="0.8"
         android:id="@+id/viewerAppbarBottom"
@@ -85,7 +58,7 @@
             app:contentInsetStart="0dp"
             app:popupTheme="@style/AppTheme.PopupOverlay">
 
-            <include layout="@layout/novel_viewer_toolbar_bottom" />
+            <include layout="@layout/viewer_toolbar_bottom" />
 
         </androidx.appcompat.widget.Toolbar>
 

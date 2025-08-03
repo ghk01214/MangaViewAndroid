@@ -62,7 +62,7 @@ import static ml.melun.mangaview.activity.CaptchaActivity.RESULT_CAPTCHA;
 import static ml.melun.mangaview.mangaview.Title.LOAD_CAPTCHA;
 import static ml.melun.mangaview.mangaview.Title.LOAD_OK;
 
-// 만화 뷰어 액티비티 (스트립 뷰어)
+// 만화 뷰어 액티비티 (스크롤 뷰어)
 public class ViewerActivity extends AppCompatActivity {
 
     Manga manga; // 현재 에피소드 객체

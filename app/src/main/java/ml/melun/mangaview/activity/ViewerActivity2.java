@@ -74,7 +74,7 @@ import static ml.melun.mangaview.Utils.showTokiCaptchaPopup;
 import static ml.melun.mangaview.activity.CaptchaActivity.RESULT_CAPTCHA;
 import static ml.melun.mangaview.mangaview.Title.LOAD_CAPTCHA;
 
-// 만화 뷰어 액티비티 (단일/분할 페이지 뷰어)
+// 만화 뷰어 액티비티 (터치 뷰어)
 public class ViewerActivity2 extends AppCompatActivity {
     Boolean dark, toolbarshow=true, reverse, touch=true, stretch, leftRight; // 다크 모드, 툴바 표시 여부, 이미지 반전, 터치 활성화, 이미지 확대, 좌우 넘기기 방향
     Context context = this; // 현재 컨텍스트
