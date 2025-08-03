@@ -182,13 +182,13 @@ public class Utils {
             // 만화/웹툰인 경우 기존 뷰어 사용
             switch (new Preference(context).getViewerType()){
                 case 0:
+                    viewer = new Intent(context, ViewerActivity2.class);
+                    break;
+                case 1:
                     viewer = new Intent(context, ViewerActivity.class);
                     break;
                 case 2:
                     viewer = new Intent(context, ViewerActivity3.class);
-                    break;
-                case 1:
-                    viewer = new Intent(context, ViewerActivity2.class);
                     break;
             }
         }
