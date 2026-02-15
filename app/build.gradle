@@ -22,7 +22,7 @@ android {
     // integer max value is 2147483647
     def code = formattedDate.toInteger() + 2112000000
     defaultConfig {
-        applicationId "ml.melun.mangaview"
+        applicationId "otaku.mangaview"
         minSdkVersion 21
         targetSdkVersion 33
         versionName "4.6-" + code
